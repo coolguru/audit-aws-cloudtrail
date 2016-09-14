@@ -3,13 +3,10 @@
 coreo_aws_advisor_alert "cloudtrail-service-disabled" do
   action :define
   service :cloudtrail
-#  display_name "AWS CloudTrail Service Disabled"
-#  uuid "BD9BA1AE-2555-4407-8618-B6B188A33CE2"
   description "CloudTrail logging is not enabled for this region. It should be enabled."
   category "Audit"
   suggested_action "Enable CloudTrail logs"
   level "Warning"
-  link "http://kb.cloudcoreo.com/descriptions/cloudtrail-service-disabled.txt"
   objectives ["trails"]
   formulas ["count"]
   audit_objects ["trail_list"]
