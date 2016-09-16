@@ -14,10 +14,61 @@ coreo_aws_advisor_alert "cloudtrail-service-disabled" do
   alert_when [0]
 end
 
+coreo_aws_advisor_alert "trail-with-global" do
+  action :define
+  service :cloudtrail
+  description "Gather raw data for regions with global service events enabled. There should be at least one."
+  category "Audit"
+  suggested_action "Enable global service event logging on at least one Trail"
+  level "Warning"
+  objectives ["trails"]
+  audit_objects ["trail_list.include_global_service_events"]
+  operators ["=="]
+  alert_when [true]
+  id_map "object.trail_list.name"
+end
+
 coreo_aws_advisor_cloudtrail "advise-cloudtrail" do
   alerts ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}
   regions ${AUDIT_AWS_CLOUDTRAIL_REGIONS}
   action :advise
+end
+
+coreo_aws_advisor_cloudtrail "trail-with-global" do
+  alerts ["trail-with-global"]
+  action :advise
+end
+
+# This resource will postprocess trail-with-global to generate an alert result
+# if there are no regions that log global service events. Best practice is
+# to have at least one region that logs global services events.
+coreo_uni_util_jsrunner "cloudtrail-aggregate" do
+  action :run
+  json_input 'STACK::coreo_aws_advisor_cloudtrail.trail-with-global.report'
+  function <<-EOH
+var result;
+console.log(util.inspect(json_input, {showHidden: false, depth: null}));
+
+var nRegionsWithGlobal = Object.keys(input).length;
+console.log('Number of regions with global: ' + nRegionsWithGlobal);
+
+if (nRegionsWithGlobal == 0) {
+  result = { 'all-regions':  { violations:
+            { 'no-global-trails':
+               { description: 'this is a alert to run',
+                 category: 'vulnerablity',
+                 suggested_action: 'fix it',
+                 level: 'warning',
+                 region: 'all-regions' } },
+           tags: [] } };
+  console.log(result);
+} else {
+  result = {};
+  console.log('there is at least one region with global service enabled');
+}
+
+callback(result);
+EOH
 end
 
 coreo_uni_util_notify "advise-cloudtrail" do
