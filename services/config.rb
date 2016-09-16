@@ -55,10 +55,10 @@ console.log('Number of regions with global: ' + nRegionsWithGlobal);
 if (nRegionsWithGlobal == 0) {
   result = { 'all-regions':  { violations:
             { 'no-global-trails':
-               { description: 'this is a alert to run',
-                 category: 'vulnerablity',
-                 suggested_action: 'fix it',
-                 level: 'warning',
+               { description: 'CloudTrail logging is not enabled for this region. It should be enabled.',
+                 category: 'Audit',
+                 suggested_action: 'Enable CloudTrail logs',
+                 level: 'Warning',
                  region: 'all-regions' } },
            tags: [] } };
   console.log(result);
