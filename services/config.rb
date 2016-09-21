@@ -17,10 +17,6 @@ end
 coreo_aws_advisor_alert "trail-with-global" do
   action :define
   service :cloudtrail
-  description "Gather raw data for regions with global service events enabled. There should be at least one."
-  category "Audit"
-  suggested_action "Enable global service event logging on at least one Trail"
-  level "Warning"
   objectives ["trails"]
   audit_objects ["trail_list.include_global_service_events"]
   operators ["=="]
@@ -34,37 +30,41 @@ coreo_aws_advisor_cloudtrail "advise-cloudtrail" do
   action :advise
 end
 
-coreo_aws_advisor_cloudtrail "trail-with-global" do
-  alerts ["trail-with-global"]
-  action :advise
-end
-
 # This resource will postprocess trail-with-global to generate an alert result
 # if there are no regions that log global service events. Best practice is
 # to have at least one region that logs global services events.
 coreo_uni_util_jsrunner "cloudtrail-aggregate" do
   action :run
-  json_input 'STACK::coreo_aws_advisor_cloudtrail.trail-with-global.report'
+  json_input 'STACK::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report'
   function <<-EOH
-var result;
+var result = {};
 console.log(util.inspect(json_input, {showHidden: false, depth: null}));
 
-var nRegionsWithGlobal = Object.keys(input).length;
+var nRegionsWithGlobal = 0;
+for (var key in json_input) {
+  if (json_input.hasOwnProperty(key)) {
+    console.log('checking key: ' + key);
+    if (json_input[key]['violations']['trail-with-global']) {
+      console.log("Trail has a region with global: " + key);
+      nRegionsWithGlobal++;
+    } else {
+      result[key] = json_input[key];
+    }
+  }
+}
 console.log('Number of regions with global: ' + nRegionsWithGlobal);
 
+var noGlobalsAlert = {};
 if (nRegionsWithGlobal == 0) {
-  result = { 'all-regions':  { violations:
+  noGlobalsAlert = { violations:
             { 'no-global-trails':
-               { description: 'CloudTrail logging is not enabled for this region. It should be enabled.',
+               { description: 'CloudTrail global service logging is not enabled for the selected regions.',
                  category: 'Audit',
-                 suggested_action: 'Enable CloudTrail logs',
+                 suggested_action: 'Enable CloudTrail global service logging in at least one region',
                  level: 'Warning',
-                 region: 'all-regions' } },
-           tags: [] } };
-  console.log(result);
-} else {
-  result = {};
-  console.log('there is at least one region with global service enabled');
+                 region: 'selected-regions' } },
+           tags: [] };
+  result['selected-regions'] = noGlobalsAlert;
 }
 
 callback(result);
