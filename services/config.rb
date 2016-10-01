@@ -55,7 +55,7 @@ var nViolations = 0;
 
 console.log('json_input: ' + JSON.stringify(json_input));
 
-for (var key in json_input['violations') {
+for (var key in json_input['violations']) {
   if (json_input.hasOwnProperty(key)) {
     console.log('checking key: ' + key);
     if (json_input[key]['violations']['trail-with-global']) {
