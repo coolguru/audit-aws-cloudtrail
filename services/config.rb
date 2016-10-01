@@ -41,7 +41,7 @@ coreo_uni_util_jsrunner "cloudtrail-aggregate" do
   "number_of_checks":"STACK::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_checks",
   "number_of_violations":"STACK::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_violations",
   "number_violations_ignored":"STACK::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_ignored_violations",
-  "violations":"STACK::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report"'
+  "violations":"STACK::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report"}'
   function <<-EOH
 var result = {};
 result['violations'] = {};
