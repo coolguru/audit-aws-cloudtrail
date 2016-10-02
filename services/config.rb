@@ -38,7 +38,7 @@ coreo_uni_util_jsrunner "cloudtrail-aggregate" do
   action :run
   json_input '{"stack name":"INSTANCE::stack_name",
   "instance name":"INSTANCE::name",
-  "regions":"INSTANCE::region",
+  "regions":"${AUDIT_AWS_CLOUDTRAIL_REGIONS}",
   "number_of_checks":"STACK::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_checks",
   "number_of_violations":"STACK::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_violations",
   "number_violations_ignored":"STACK::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_ignored_violations",
