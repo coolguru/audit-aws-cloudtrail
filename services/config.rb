@@ -63,7 +63,7 @@ for (var key in json_input['violations']) {
       nRegionsWithGlobal++;
     } else {
       nViolations++;
-      result['violations'][key] = json_input[key];
+      result['violations'][key] = json_input['violations'][key];
     }
   }
 }
