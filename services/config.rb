@@ -38,6 +38,7 @@ coreo_uni_util_jsrunner "cloudtrail-aggregate" do
   action :run
   json_input '{"stack name":"INSTANCE::stack_name",
   "instance name":"INSTANCE::name",
+  "regions":"INSTANCE::region",
   "number_of_checks":"STACK::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_checks",
   "number_of_violations":"STACK::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_violations",
   "number_violations_ignored":"STACK::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_ignored_violations",
@@ -47,6 +48,7 @@ var result = {};
 result['violations'] = {};
 result['stack name'] = json_input['stack name'];
 result['instance name'] = json_input['instance name'];
+result['regions'] = json_input['regions'];
 result['number_of_checks'] = json_input['number_of_checks'];
 result['number_violations_ignored'] = json_input['number_violations_ignored'];
 
@@ -56,12 +58,13 @@ var nViolations = 0;
 console.log('json_input: ' + JSON.stringify(json_input));
 
 for (var key in json_input['violations']) {
-  if (json_input.hasOwnProperty(key)) {
-    console.log('checking key: ' + key);
-    if (json_input[key]['violations']['trail-with-global']) {
+  if (json_input['violations'].hasOwnProperty(key)) {
+    console.log('--> checking key: ' + key);
+    if (json_input['violations'][key]['violations']['trail-with-global']) {
       console.log("Trail has a region with global: " + key);
       nRegionsWithGlobal++;
     } else {
+      console.log('----> saving violation with key: ' + key);
       nViolations++;
       result['violations'][key] = json_input['violations'][key];
     }
@@ -73,7 +76,7 @@ console.log('Number of regions with global: ' + nRegionsWithGlobal);
 var noGlobalsAlert = {};
 if (nRegionsWithGlobal == 0) {
   nViolations++;
-  noGlobalsAlert = 
+  noGlobalsAlert =
           { violations:
             { 'no-global-trails':
                { description: 'CloudTrail global service logging is not enabled for the selected regions.',
@@ -85,6 +88,8 @@ if (nRegionsWithGlobal == 0) {
             },
             tags: []
           };
+  var key = 'selected regions';
+  console.log('saving global violation on key: ' + key + ' | violation: ' + JSON.stringify(noGlobalsAlert));
   result['violations']['selected-regions'] = noGlobalsAlert;
 }
 
