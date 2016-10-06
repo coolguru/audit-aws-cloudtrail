@@ -10,11 +10,6 @@ variables:
         required: true
         type: boolean
         default: false
-    AUDIT_AWS_CLOUDTRAIL_PAYLOAD_TYPE:
-        description: json or text
-        required: true
-        type: string
-        default: "json"
     AUDIT_AWS_CLOUDTRAIL_SEND_ON:
         description: always or change
         required: true
