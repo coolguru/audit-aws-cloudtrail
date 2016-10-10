@@ -4,6 +4,7 @@ coreo_aws_advisor_alert "cloudtrail-service-disabled" do
   action :define
   service :cloudtrail
   link "http://kb.cloudcoreo.com/cloudtrail-service-disabled.html"
+  display_name "Cloudtrail Service is disabled"
   description "CloudTrail logging is not enabled for this region. It should be enabled."
   category "Audit"
   suggested_action "Enable CloudTrail logs"
