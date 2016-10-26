@@ -47,6 +47,10 @@ This repo is designed to work with CloudCoreo. It will monitor CloudTrail agains
 1. Alert
 1. CloudTrail
 
+## Categories
+
+1. Audit
+
 ## Diagram
 
 
