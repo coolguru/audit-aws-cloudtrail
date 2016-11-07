@@ -1,10 +1,10 @@
 variables:
-    AUDIT_AWS_CLOUDTRAIL_ALERT_LIST:
-        description: "Which alerts would you like to check for? (Default is all Cloudtrail alerts)"
-        required: true
-        type: array
-        default:
-            - cloudtrail-service-disabled
+#    AUDIT_AWS_CLOUDTRAIL_ALERT_LIST:
+#        description: "Which alerts would you like to check for? (Default is all Cloudtrail alerts)"
+#        required: true
+#        type: array
+#        default:
+#            - cloudtrail-service-disabled
     AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY:
         description: "Would you like to receive empty reports? Options - true / false. Default is false."
         required: true
