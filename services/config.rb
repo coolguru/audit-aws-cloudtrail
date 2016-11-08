@@ -27,14 +27,14 @@ coreo_uni_util_notify "advise-cloudtrail" do
   type 'email'
   allow_empty ${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}
   send_on "${AUDIT_AWS_CLOUDTRAIL_SEND_ON}"
-  payload '{"stack name":"INSTANCE::stack_name",
-  "instance name":"INSTANCE::name",
-  "number_of_checks":"STACK::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_checks",
-  "number_of_violations":"STACK::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_violations",
-  "number_violations_ignored":"STACK::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_ignored_violations",
-  "violations": STACK::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report }'
+  payload '{"stack name":"PLAN::stack_name",
+  "instance name":"PLAN::name",
+  "number_of_checks":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_checks",
+  "number_of_violations":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_violations",
+  "number_violations_ignored":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_ignored_violations",
+  "violations": COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report }'
   payload_type "json"
   endpoint ({ 
-              :to => '${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}', :subject => 'CloudCoreo cloudtrail advisor alerts on INSTANCE::stack_name :: INSTANCE::name'
+              :to => '${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}', :subject => 'CloudCoreo cloudtrail advisor alerts on PLAN::stack_name :: PLAN::name'
             })
 end
