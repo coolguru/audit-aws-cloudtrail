@@ -121,7 +121,7 @@ coreo_uni_util_notify "advise-cloudtrail" do
   allow_empty ${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}
   send_on "${AUDIT_AWS_CLOUDTRAIL_SEND_ON}"
   payload 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'
-  payload_type "${AUDIT_AWS_CLOUDTRAIL_PAYLOAD_TYPE}"
+  payload_type "json"
   endpoint ({ 
               :to => '${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}', :subject => 'CloudCoreo cloudtrail advisor alerts on PLAN::stack_name :: PLAN::name'
             })
