@@ -28,9 +28,9 @@ coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
 end
 
 coreo_aws_advisor_cloudtrail "advise-cloudtrail" do
+  action :advise
   alerts ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}
   regions ${AUDIT_AWS_CLOUDTRAIL_REGIONS}
-  action :advise
 end
 
 # This resource will postprocess trail-with-global to generate an alert result
