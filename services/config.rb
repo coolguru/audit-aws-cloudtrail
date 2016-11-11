@@ -27,11 +27,11 @@ coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
   id_map "object.trail_list.name"
 end
 
-coreo_aws_advisor_cloudtrail "advise-cloudtrail" do
-  action :advise
-  alerts ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}
-  regions ${AUDIT_AWS_CLOUDTRAIL_REGIONS}
-end
+# coreo_aws_advisor_cloudtrail "advise-cloudtrail" do
+#   action :advise
+#   alerts ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}
+#   regions ${AUDIT_AWS_CLOUDTRAIL_REGIONS}
+# end
 
 # This resource will postprocess trail-with-global to generate an alert result
 # if there are no regions that log global service events. Best practice is
