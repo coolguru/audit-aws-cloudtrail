@@ -16,22 +16,22 @@ coreo_aws_advisor_alert "cloudtrail-service-disabled" do
   alert_when [0]
 end
 
-coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
-  action :define
-  service :cloudtrail
-  level "Warning"
-  objectives ["trails"]
-  audit_objects ["trail_list.include_global_service_events"]
-  operators ["=="]
-  alert_when [true]
-  id_map "object.trail_list.name"
-end
-
-# coreo_aws_advisor_cloudtrail "advise-cloudtrail" do
-#   action :advise
-#   alerts ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}
-#   regions ${AUDIT_AWS_CLOUDTRAIL_REGIONS}
+# coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
+#   action :define
+#   service :cloudtrail
+#   level "Warning"
+#   objectives ["trails"]
+#   audit_objects ["trail_list.include_global_service_events"]
+#   operators ["=="]
+#   alert_when [true]
+#   id_map "object.trail_list.name"
 # end
+
+coreo_aws_advisor_cloudtrail "advise-cloudtrail" do
+  action :advise
+  alerts ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}
+  regions ${AUDIT_AWS_CLOUDTRAIL_REGIONS}
+end
 
 # This resource will postprocess trail-with-global to generate an alert result
 # if there are no regions that log global service events. Best practice is
@@ -115,14 +115,14 @@ end
 
 # this is the new notifier that takes the violations transformed by the jsrunner
 #
-coreo_uni_util_notify "advise-cloudtrail" do
-  action :notify
-  type 'email'
-  allow_empty ${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}
-  send_on "${AUDIT_AWS_CLOUDTRAIL_SEND_ON}"
-  payload 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'
-  payload_type "json"
-  endpoint ({ 
-              :to => '${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}', :subject => 'CloudCoreo cloudtrail advisor alerts on PLAN::stack_name :: PLAN::name'
-            })
-end
+# coreo_uni_util_notify "advise-cloudtrail" do
+#   action :notify
+#   type 'email'
+#   allow_empty ${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}
+#   send_on "${AUDIT_AWS_CLOUDTRAIL_SEND_ON}"
+#   payload 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'
+#   payload_type "json"
+#   endpoint ({ 
+#               :to => '${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}', :subject => 'CloudCoreo cloudtrail advisor alerts on PLAN::stack_name :: PLAN::name'
+#             })
+# end
