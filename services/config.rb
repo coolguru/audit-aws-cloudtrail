@@ -45,6 +45,7 @@ coreo_uni_util_jsrunner "cloudtrail-aggregate" do
   "number_violations_ignored":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_ignored_violations",
   "violations":COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report}'
   function <<-EOH
+regions = "${AUDIT_AWS_CLOUDTRAIL_REGIONS}";
 var result = {};
 result['violations'] = {};
 result['stack name'] = json_input['stack name'];
@@ -95,7 +96,7 @@ end
 
 # this is the original notifier
 #
-coreo_uni_util_notify "advise-cloudtrail" do
+coreo_uni_util_notify "advise-cloudtrail-old" do
   action :notify
   type 'email'
   allow_empty ${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}
