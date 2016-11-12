@@ -40,7 +40,7 @@ coreo_uni_util_jsrunner "cloudtrail-aggregate" do
   action :run
   json_input '{"stack name":"PLAN::stack_name",
   "instance name":"PLAN::name",
-  "regions":"${AUDIT_AWS_CLOUDTRAIL_REGIONS}",
+  //"regions":"${AUDIT_AWS_CLOUDTRAIL_REGIONS}",
   "number_of_checks":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_checks",
   "number_of_violations":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_violations",
   "number_violations_ignored":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_ignored_violations",
@@ -103,6 +103,7 @@ coreo_uni_util_notify "advise-cloudtrail" do
   send_on "${AUDIT_AWS_CLOUDTRAIL_SEND_ON}"
   payload '{"stack name":"PLAN::stack_name",
   "instance name":"PLAN::name",
+  "regions":"${AUDIT_AWS_CLOUDTRAIL_REGIONS}",
   "number_of_checks":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_checks",
   "number_of_violations":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_violations",
   "number_violations_ignored":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_ignored_violations",
