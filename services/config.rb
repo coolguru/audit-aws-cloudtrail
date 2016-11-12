@@ -16,16 +16,16 @@ coreo_aws_advisor_alert "cloudtrail-service-disabled" do
   alert_when [0]
 end
 
-# coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
-#   action :define
-#   service :cloudtrail
-#   level "Warning"
-#   objectives ["trails"]
-#   audit_objects ["trail_list.include_global_service_events"]
-#   operators ["=="]
-#   alert_when [true]
-#   id_map "object.trail_list.name"
-# end
+coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
+  action :define
+  service :cloudtrail
+  level "Warning"
+  objectives ["trails"]
+  audit_objects ["trail_list.include_global_service_events"]
+  operators ["=="]
+  alert_when [true]
+  id_map "object.trail_list.name"
+end
 
 coreo_aws_advisor_cloudtrail "advise-cloudtrail" do
   action :advise
@@ -40,7 +40,7 @@ end
 #   action :run
 #   json_input '{"stack name":"PLAN::stack_name",
 #   "instance name":"PLAN::name",
-#   "regions":${AUDIT_AWS_CLOUDTRAIL_REGIONS},
+#   "regions":"${AUDIT_AWS_CLOUDTRAIL_REGIONS}",
 #   "number_of_checks":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_checks",
 #   "number_of_violations":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_violations",
 #   "number_violations_ignored":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_ignored_violations",
