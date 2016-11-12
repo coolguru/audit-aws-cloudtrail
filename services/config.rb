@@ -45,14 +45,14 @@ coreo_uni_util_jsrunner "cloudtrail-aggregate" do
   "number_violations_ignored":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_ignored_violations",
   "violations":COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report}'
   function <<-EOH
-regions = "${AUDIT_AWS_CLOUDTRAIL_REGIONS}";
+var_regions = "${AUDIT_AWS_CLOUDTRAIL_REGIONS}";
 var result = {};
-result['violations'] = {};
 result['stack name'] = json_input['stack name'];
 result['instance name'] = json_input['instance name'];
-result['regions'] = json_input['regions'];
+result['regions'] = var_regions;
 result['number_of_checks'] = json_input['number_of_checks'];
 result['number_violations_ignored'] = json_input['number_violations_ignored'];
+result['violations'] = {};
 var nRegionsWithGlobal = 0;
 var nViolations = 0;
 console.log('json_input: ' + JSON.stringify(json_input));
@@ -75,11 +75,11 @@ if (nRegionsWithGlobal == 0) {
   noGlobalsAlert =
           { violations:
             { 'no-global-trails':
-               { description: 'CloudTrail global service logging is not enabled for the selected regions.',
-                 category: 'Audit',
-                 suggested_action: 'Enable CloudTrail global service logging in at least one region',
-                 level: 'Warning',
-                 regions: json_input['regions']
+               { 'description': 'CloudTrail global service logging is not enabled for the selected regions.',
+                 'category': 'Audit',
+                 'suggested_action': 'Enable CloudTrail global service logging in at least one region',
+                 'level': 'Warning',
+                 'regions': var_regions
                }
             },
             tags: []
