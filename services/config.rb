@@ -33,7 +33,7 @@ coreo_aws_advisor_cloudtrail "advise-cloudtrail" do
   regions ${AUDIT_AWS_CLOUDTRAIL_REGIONS}
 end
 
-# This resource will postprocess trail-with-global to generate an alert result
+# This resource will postprocess cloudtrail-trail-with-global to generate an alert result
 # if there are no regions that log global service events. Best practice is
 # to have at least one region that logs global services events.
 coreo_uni_util_jsrunner "cloudtrail-aggregate" do
@@ -59,7 +59,7 @@ console.log('json_input: ' + JSON.stringify(json_input));
 for (var key in json_input['violations']) {
   if (json_input['violations'].hasOwnProperty(key)) {
     console.log('--> checking key: ' + key);
-    if (json_input['violations'][key]['violations']['trail-with-global']) {
+    if (json_input['violations'][key]['violations']['cloudtrail-trail-with-global']) {
       console.log("Trail has a region with global: " + key);
       nRegionsWithGlobal++;
     } else {
