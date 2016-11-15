@@ -19,7 +19,9 @@ end
 coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
   action :define
   service :cloudtrail
-  level "Warning"
+  category "Inventory"
+  suggested_action "None."
+  level "Information"
   objectives ["trails"]
   audit_objects ["trail_list.include_global_service_events"]
   operators ["=="]
