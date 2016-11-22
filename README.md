@@ -22,7 +22,7 @@ This repo is designed to work with CloudCoreo. It will monitor CloudTrail agains
 
 ### `AUDIT_AWS_CLOUDTRAIL_ALERT_LIST`:
   * description: Which alerts would you like to check for? (Default is all Cloudtrail alerts)
-  * default: cloudtrail-service-disabled
+  * default: cloudtrail-service-disabled, cloudtrail-trail-with-global
 
 ### `AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY`:
   * description: Would you like to receive empty reports? Options - true / false. Default is false.
@@ -37,12 +37,12 @@ This repo is designed to work with CloudCoreo. It will monitor CloudTrail agains
   * default: us-east-1, us-west-1, us-west-2
 
 
-## Optional variables with no default
+## Optional variables with default
 
 **None**
 
 
-## Optional variables with default
+## Optional variables with no default
 
 **None**
 
