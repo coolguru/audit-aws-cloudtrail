@@ -88,7 +88,7 @@ coreo_uni_util_jsrunner "tags-to-notifiers-array" do
                 "violations": COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report}'
   function <<-EOH
 const CloudCoreoJSRunner = require('cloudcoreo-jsrunner-commons');
-const AuditCloudtrail = new CloudCoreoJSRunner(json_input["violations"], false, "${AUDIT_AWS_CLOUDTRAIL_ALERT_NO_OWNER_RECIPIENT}", "${AUDIT_AWS_CLOUDTRAIL_OWNER_TAG}");
+const AuditCloudtrail = new CloudCoreoJSRunner(json_input, false, "${AUDIT_AWS_CLOUDTRAIL_ALERT_NO_OWNER_RECIPIENT}", "${AUDIT_AWS_CLOUDTRAIL_OWNER_TAG}");
 const notifiers = AuditCloudtrail.getNotifiers();
 callback(notifiers);
 EOH
