@@ -40,7 +40,7 @@ coreo_uni_util_notify "advise-cloudtrail" do
   action :${AUDIT_AWS_CLOUDTRAIL_FULL_JSON_REPORT}
   type 'email'
   allow_empty ${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}
-  send_on "${AUDIT_AWS_CLOUDTRAIL_SEND_ON}"
+  send_on 'always'
   payload '{"composite name":"PLAN::stack_name",
   "plan name":"PLAN::name",
   "number_of_checks":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_checks",
@@ -60,7 +60,7 @@ coreo_uni_util_jsrunner "tags-to-notifiers-array" do
   packages([
         {
           :name => "cloudcoreo-jsrunner-commons",
-          :version => "1.0.3"
+          :version => "1.0.4"
         }       ])
   json_input '{ "composite name":"PLAN::stack_name",
                 "plan name":"PLAN::name",
