@@ -64,8 +64,8 @@ coreo_uni_util_jsrunner "tags-to-notifiers-array" do
           :name => "cloudcoreo-jsrunner-commons",
           :version => "1.0.2"
         }       ])
-  json_input '{"stack name":PLAN::stack_name,
-                "instance name":PLAN::name,
+  json_input '{ "stack name":"PLAN::stack_name",
+                "instance name":"PLAN::name",
                 "number_of_checks":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_checks",
                 "number_of_violations":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_violations",
                 "number_violations_ignored":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_ignored_violations",
