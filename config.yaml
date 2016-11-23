@@ -21,6 +21,11 @@ variables:
         required: true
         type: string
         default: null
+    AUDIT_AWS_CLOUDTRAIL_FULL_JSON_REPORT:
+        description: "Would you like to send the full JSON report? Options - notify / nothing. Default is notify."
+        required: true
+        type: string
+        default: "notify"
     AUDIT_AWS_CLOUDTRAIL_REGIONS:
         description: "List of AWS regions to check. Default is us-east-1,us-west-1,us-west-2."
         required: true
