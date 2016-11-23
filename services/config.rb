@@ -36,7 +36,7 @@ coreo_aws_advisor_cloudtrail "advise-cloudtrail" do
 end
 
 
-coreo_uni_util_notify "advise-cloudtrail" do
+coreo_uni_util_notify "advise-cloudtrail-json" do
   action :${AUDIT_AWS_CLOUDTRAIL_FULL_JSON_REPORT}
   type 'email'
   allow_empty ${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}
