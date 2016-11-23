@@ -64,8 +64,8 @@ coreo_uni_util_jsrunner "tags-to-notifiers-array" do
           :name => "cloudcoreo-jsrunner-commons",
           :version => "1.0.2"
         }       ])
-  json_input '{"stack name":PLAN::stack_name,
-                "instance name":PLAN::name,
+  json_input '{"stack name":"PLAN::stack_name",
+                "instance name":"PLAN::name",
                 "violations": COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report}'
   function <<-EOH
 const CloudCoreoJSRunner = require('cloudcoreo-jsrunner-commons');
