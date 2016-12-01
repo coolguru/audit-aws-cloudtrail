@@ -54,7 +54,6 @@ regionArray.forEach(region=> {
     createRegionStr+= region + ' ';
 });
 
-createRegionStr = JSON.stringify(createRegionStr);
 
 var result = {};
 result['stack name'] = json_input['stack name'];
