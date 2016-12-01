@@ -75,7 +75,9 @@ if (nRegionsWithGlobal == 0) {
   noGlobalsAlert =
           { violations:
             { 'no-global-trails':
-               { 'description': 'CloudTrail global service logging is not enabled for the selected regions.',
+               { 
+                  'display_name': 'Cloudtrail global logging is disabled',
+                  'description': 'CloudTrail global service logging is not enabled for the selected regions.',
                  'category': 'Audit',
                  'suggested_action': 'Enable CloudTrail global service logging in at least one region',
                  'level': 'Warning',
