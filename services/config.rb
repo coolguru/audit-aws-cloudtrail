@@ -161,7 +161,6 @@ coreo_uni_util_notify "advise-cloudtrail-rollup" do
   payload '
 composite name: PLAN::stack_name
 plan name: PLAN::name
-number_of_checks: COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_checks
 number_violations_ignored: COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_ignored_violations
 
 rollup report:
