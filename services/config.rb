@@ -45,6 +45,17 @@ coreo_uni_util_jsrunner "cloudtrail-aggregate" do
   "violations":COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report}'
   function <<-EOH
 var_regions = "${AUDIT_AWS_CLOUDTRAIL_REGIONS}";
+
+let regionArrayJSON =  var_regions;
+let regionArray = regionArrayJSON.replace(/'/g, '"');
+regionArray = JSON.parse(regionArray);
+let createRegionStr = '';
+regionArray.forEach(region=> {
+    createRegionStr+= region + ' ';
+});
+
+createRegionStr = JSON.stringify(createRegionStr);
+
 var result = {};
 result['stack name'] = json_input['stack name'];
 result['instance name'] = json_input['instance name'];
@@ -81,7 +92,7 @@ if (nRegionsWithGlobal == 0) {
                  'category': 'Audit',
                  'suggested_action': 'Enable CloudTrail global service logging in at least one region',
                  'level': 'Warning',
-                 'regions': var_regions
+                 'region': createRegionStr
                }
             },
             tags: []
