@@ -37,8 +37,8 @@ end
 
 coreo_uni_util_jsrunner "cloudtrail-aggregate" do
   action :run
-  json_input '{"stack name":"PLAN::stack_name",
-  "instance name":"PLAN::name",
+  json_input '{"composite name":"PLAN::stack_name",
+  "plan name":"PLAN::name",
   "number_of_checks":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_checks",
   "number_of_violations":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_violations",
   "number_violations_ignored":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_ignored_violations",
@@ -50,6 +50,7 @@ result['stack name'] = json_input['stack name'];
 result['instance name'] = json_input['instance name'];
 result['regions'] = var_regions;
 result['number_of_checks'] = json_input['number_of_checks'];
+result['number_of_violations'] = json_input['number_of_violations'];
 result['number_violations_ignored'] = json_input['number_violations_ignored'];
 result['violations'] = {};
 var nRegionsWithGlobal = 0;
@@ -98,12 +99,7 @@ coreo_uni_util_notify "advise-cloudtrail-json" do
   type 'email'
   allow_empty ${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}
   send_on 'always'
-  payload '{"composite name":"PLAN::stack_name",
-  "plan name":"PLAN::name",
-  "number_of_checks":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_checks",
-  "number_of_violations":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_violations",
-  "number_violations_ignored":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_ignored_violations",
-  "violations":COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return }'
+  payload 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'
   payload_type "json"
   endpoint ({
       :to => '${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}', :subject => 'CloudCoreo cloudtrail advisor alerts on PLAN::stack_name :: PLAN::name'
@@ -119,12 +115,7 @@ coreo_uni_util_jsrunner "tags-to-notifiers-array" do
           :name => "cloudcoreo-jsrunner-commons",
           :version => "1.0.9"
         }       ])
-  json_input '{ "composite name":"PLAN::stack_name",
-                "plan name":"PLAN::name",
-                "number_of_checks":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_checks",
-                "number_of_violations":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_violations",
-                "number_violations_ignored":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_ignored_violations",
-                "violations":COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return}'
+  json_input 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'
   function <<-EOH
 const CloudCoreoJSRunner = require('cloudcoreo-jsrunner-commons');
 const AuditCloudtrail = new CloudCoreoJSRunner(json_input, false, "${AUDIT_AWS_CLOUDTRAIL_ALERT_NO_OWNER_RECIPIENT}", "${AUDIT_AWS_CLOUDTRAIL_OWNER_TAG}", 'cloudtrail');
