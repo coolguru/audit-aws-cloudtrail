@@ -113,7 +113,7 @@ coreo_uni_util_jsrunner "tags-to-notifiers-array" do
   packages([
         {
           :name => "cloudcoreo-jsrunner-commons",
-          :version => "1.1.1"
+          :version => "1.1.2"
         }       ])
   json_input 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'
   function <<-EOH
