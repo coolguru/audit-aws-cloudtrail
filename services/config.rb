@@ -56,8 +56,8 @@ regionArray.forEach(region=> {
 
 
 var result = {};
-result['stack name'] = json_input['stack name'];
-result['instance name'] = json_input['instance name'];
+result['composite name'] = json_input['stack name'];
+result['plan name'] = json_input['instance name'];
 result['regions'] = var_regions;
 result['number_of_checks'] = json_input['number_of_checks'];
 result['number_of_violations'] = json_input['number_of_violations'];
