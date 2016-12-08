@@ -117,7 +117,7 @@ end
 #      ])
 #end
 
-coreo_uni_util_variables "js-setter" do
+coreo_uni_util_variables "update-advisor-output" do
   action :set
   variables([
        {'COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'}
