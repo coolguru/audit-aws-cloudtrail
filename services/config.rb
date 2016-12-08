@@ -106,6 +106,17 @@ callback(result);
   EOH
 end
 
+#coreo_uni_util_variables "js-setter" do
+#  action :set
+#  variables([
+#       {'COMPOSITE::a.b.c' => 'a.b.c.d.e.f.g'},
+#       {'COMPOSITE::coreo_aws_advisor_s3.js-setter.hithere' => 'hithere'},
+#       {'COMPOSITE::coreo_aws_advisor_s3.js-setter.oldReport' => 'COMPOSITE::coreo_aws_advisor_s3.js-setter.report'},
+#       {'COMPOSITE::coreo_aws_advisor_s3.js-setter.report' => "{'1':'2','3':{'a':'b'}}"},
+#       {'COMPOSITE::password.password.password' => 'just-something'}
+#      ])
+#end
+
 coreo_uni_util_notify "advise-cloudtrail-json" do
   action :${AUDIT_AWS_CLOUDTRAIL_FULL_JSON_REPORT}
   type 'email'
