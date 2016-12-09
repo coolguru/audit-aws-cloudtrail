@@ -106,28 +106,6 @@ callback(result);
   EOH
 end
 
-#coreo_uni_util_variables "js-setter" do
-#  action :set
-#  variables([
-#       {'COMPOSITE::a.b.c' => 'a.b.c.d.e.f.g'},
-#       {'COMPOSITE::coreo_aws_advisor_s3.js-setter.hithere' => 'hithere'},
-#       {'COMPOSITE::coreo_aws_advisor_s3.js-setter.oldReport' => 'COMPOSITE::coreo_aws_advisor_s3.js-setter.report'},
-#       {'COMPOSITE::coreo_aws_advisor_s3.js-setter.report' => "{'1':'2','3':{'a':'b'}}"},
-#       {'COMPOSITE::password.password.password' => 'just-something'}
-#      ])
-#end
-
-# coreo_uni_util_jsrunner "js-setter" do
-#   action :run
-#   json_input "{}"
-#   function <<EOF
-# var myVarName = 'paulallen';
-# // this will test the interpolation as well as the export functionality
-# coreoExport(`${myVarName}`, 'this is it man');
-# callback();
-# EOF
-# end
-
 coreo_uni_util_variables "update-advisor-output" do
   action :set
   variables([
