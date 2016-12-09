@@ -117,6 +117,17 @@ end
 #      ])
 #end
 
+# coreo_uni_util_jsrunner "js-setter" do
+#   action :run
+#   json_input "{}"
+#   function <<EOF
+# var myVarName = 'paulallen';
+# // this will test the interpolation as well as the export functionality
+# coreoExport(`${myVarName}`, 'this is it man');
+# callback();
+# EOF
+# end
+
 coreo_uni_util_variables "update-advisor-output" do
   action :set
   variables([
