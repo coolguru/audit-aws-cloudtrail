@@ -20,7 +20,7 @@ variables:
         description: "Enter the email address(es) that will receive notifications. If more than one, separate each with a comma."
         required: false
         type: string
-        default: null
+        default:
     AUDIT_AWS_CLOUDTRAIL_FULL_JSON_REPORT:
         description: "Would you like to send the full JSON report? Options - notify / nothing. Default is notify."
         required: true
