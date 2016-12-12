@@ -110,7 +110,7 @@ coreo_uni_util_notify "advise-cloudtrail-json" do
   action :${AUDIT_AWS_CLOUDTRAIL_FULL_JSON_REPORT}
   type 'email'
   allow_empty ${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}
-  send_on 'always'
+  send_on '${AUDIT_AWS_CLOUDTRAIL_SEND_ON}'
   payload 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'
   payload_type "json"
   endpoint ({
@@ -187,7 +187,7 @@ coreo_uni_util_notify "advise-cloudtrail-rollup" do
   action :${AUDIT_AWS_CLOUDTRAIL_ROLLUP_REPORT}
   type 'email'
   allow_empty true
-  send_on 'always'
+  send_on '${AUDIT_AWS_CLOUDTRAIL_SEND_ON}'
   payload '
 composite name: PLAN::stack_name
 plan name: PLAN::name
@@ -198,7 +198,7 @@ COMPOSITE::coreo_uni_util_jsrunner.tags-rollup.return
   '
   payload_type 'text'
   endpoint ({
-      :to => '${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}', :subject => 'CloudCoreo cloudtrail advisor alerts on PLAN::stack_name :: PLAN::name'
+      :to => '${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT_2}', :subject => 'CloudCoreo cloudtrail advisor alerts on PLAN::stack_name :: PLAN::name'
   })
 end
 
