@@ -148,8 +148,8 @@ const VARIABLES = {
 };
 
 const CloudCoreoJSRunner = require('cloudcoreo-jsrunner-commons');
-const AuditS3 = new CloudCoreoJSRunner(JSON, VARIABLES);
-const notifiers = AuditS3.getNotifiers();
+const AuditCloudTrail = new CloudCoreoJSRunner(JSON, VARIABLES);
+const notifiers = AuditCloudTrail.getNotifiers();
 callback(notifiers);
 EOH
 end
