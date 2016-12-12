@@ -125,13 +125,31 @@ coreo_uni_util_jsrunner "tags-to-notifiers-array" do
   packages([
         {
           :name => "cloudcoreo-jsrunner-commons",
-          :version => "1.1.2"
+          :version => "1.1.7"
         }       ])
   json_input 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'
   function <<-EOH
+  
+const JSON = json_input;
+const NO_OWNER_EMAIL = "${AUDIT_AWS_CLOUDTRAIL_ALERT_NO_OWNER_RECIPIENT}";
+const OWNER_TAG = "${AUDIT_AWS_CLOUDTRAIL_OWNER_TAG}";
+const AUDIT_NAME = 'cloudtrail';
+const IS_KILL_SCRIPTS_SHOW = false;
+const EC2_LOGIC = ''; // you can choose 'and' or 'or';
+const EXPECTED_TAGS = [];
+
+const VARIABLES = {
+    'NO_OWNER_EMAIL': NO_OWNER_EMAIL,
+    'OWNER_TAG': OWNER_TAG,
+    'AUDIT_NAME': AUDIT_NAME,
+    'IS_KILL_SCRIPTS_SHOW': IS_KILL_SCRIPTS_SHOW,
+    'EC2_LOGIC': EC2_LOGIC,
+    'EXPECTED_TAGS': EXPECTED_TAGS
+};
+
 const CloudCoreoJSRunner = require('cloudcoreo-jsrunner-commons');
-const AuditCloudtrail = new CloudCoreoJSRunner(json_input, false, "${AUDIT_AWS_CLOUDTRAIL_ALERT_NO_OWNER_RECIPIENT}", "${AUDIT_AWS_CLOUDTRAIL_OWNER_TAG}", 'cloudtrail');
-const notifiers = AuditCloudtrail.getNotifiers();
+const AuditS3 = new CloudCoreoJSRunner(JSON, VARIABLES);
+const notifiers = AuditS3.getNotifiers();
 callback(notifiers);
 EOH
 end
