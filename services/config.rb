@@ -131,7 +131,7 @@ coreo_uni_util_jsrunner "tags-to-notifiers-array" do
   function <<-EOH
   
 const JSON = json_input;
-const NO_OWNER_EMAIL = "${AUDIT_AWS_CLOUDTRAIL_ALERT_NO_OWNER_RECIPIENT}";
+const NO_OWNER_EMAIL = "${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT_2}";
 const OWNER_TAG = "${AUDIT_AWS_CLOUDTRAIL_OWNER_TAG}";
 const AUDIT_NAME = 'cloudtrail';
 const IS_KILL_SCRIPTS_SHOW = false;
