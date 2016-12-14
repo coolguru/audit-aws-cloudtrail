@@ -113,6 +113,13 @@ coreo_uni_util_variables "update-advisor-output" do
       ])
 end
 
+# coreo_uni_util_variables "update-advisor-output" do
+#   action :set
+#   variables([
+#        {'COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'}
+#       ])
+# end
+
 coreo_uni_util_notify "advise-cloudtrail-json" do
   action :${AUDIT_AWS_CLOUDTRAIL_FULL_JSON_REPORT}
   type 'email'
