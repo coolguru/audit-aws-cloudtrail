@@ -10,7 +10,7 @@ variables:
         description: "Would you like to receive empty reports? Options - true / false. Default is false."
         required: true
         type: boolean
-        default: true
+        default: false
     AUDIT_AWS_CLOUDTRAIL_SEND_ON:
         description: "Send reports always or only when there is a change? Options - always / change. Default is change."
         required: true

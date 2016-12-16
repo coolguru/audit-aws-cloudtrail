@@ -161,7 +161,6 @@ callback(notifiers);
 EOH
 end
 
-
 ## Create rollup String
 coreo_uni_util_jsrunner "tags-rollup" do
   action :run
@@ -180,15 +179,11 @@ callback(rollup_string);
 EOH
 end
 
-
 ## Send Notifiers
 coreo_uni_util_notify "advise-cloudtrail-to-tag-values" do
   action :${AUDIT_AWS_CLOUDTRAIL_OWNERS_HTML_REPORT}
   notifiers 'COMPOSITE::coreo_uni_util_jsrunner.tags-to-notifiers-array.return'
 end
-
-
-
 
 coreo_uni_util_notify "advise-cloudtrail-rollup" do
   action :${AUDIT_AWS_CLOUDTRAIL_ROLLUP_REPORT}
