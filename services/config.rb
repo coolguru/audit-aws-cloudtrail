@@ -182,8 +182,6 @@ end
 ## Send Notifiers
 coreo_uni_util_notify "advise-cloudtrail-to-tag-values" do
   action :${AUDIT_AWS_CLOUDTRAIL_HTML_REPORT}
-  allow_empty ${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}
-  send_on '${AUDIT_AWS_CLOUDTRAIL_SEND_ON}'
   notifiers 'COMPOSITE::coreo_uni_util_jsrunner.tags-to-notifiers-array.return'
 end
 
