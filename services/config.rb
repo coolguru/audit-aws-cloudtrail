@@ -29,6 +29,19 @@ coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
   id_map "object.trail_list.name"
 end
 
+coreo_aws_advisor_alert "no-global-trails" do
+  action :nothing
+  service :cloudtrail
+  category "Inventory"
+  suggested_action "None."
+  level "Informational"
+  objectives [""]
+  audit_objects [""]
+  operators [""]
+  alert_when [true]
+  id_map ""
+end
+
 coreo_aws_advisor_cloudtrail "advise-cloudtrail" do
   action :advise
   alerts ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}
@@ -114,7 +127,7 @@ coreo_uni_util_variables "update-advisor-output" do
 end
 
 coreo_uni_util_notify "advise-cloudtrail-json" do
-  action :notify
+  action :nothing
   type 'email'
   allow_empty ${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}
   send_on '${AUDIT_AWS_CLOUDTRAIL_SEND_ON}'
