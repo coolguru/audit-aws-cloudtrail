@@ -114,7 +114,7 @@ coreo_uni_util_variables "update-advisor-output" do
 end
 
 coreo_uni_util_notify "advise-cloudtrail-json" do
-  action :${AUDIT_AWS_CLOUDTRAIL_FULL_JSON_REPORT}
+  action :nothing
   type 'email'
   allow_empty ${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}
   send_on '${AUDIT_AWS_CLOUDTRAIL_SEND_ON}'
@@ -138,7 +138,7 @@ coreo_uni_util_jsrunner "tags-to-notifiers-array" do
   function <<-EOH
   
 const JSON = json_input;
-const NO_OWNER_EMAIL = "${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT_2}";
+const NO_OWNER_EMAIL = "${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}";
 const OWNER_TAG = "${AUDIT_AWS_CLOUDTRAIL_OWNER_TAG}";
 const AUDIT_NAME = 'cloudtrail';
 const IS_KILL_SCRIPTS_SHOW = false;
@@ -181,7 +181,7 @@ end
 
 ## Send Notifiers
 coreo_uni_util_notify "advise-cloudtrail-to-tag-values" do
-  action :${AUDIT_AWS_CLOUDTRAIL_OWNERS_HTML_REPORT}
+  action :${AUDIT_AWS_CLOUDTRAIL_HTML_REPORT}
   allow_empty ${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}
   send_on '${AUDIT_AWS_CLOUDTRAIL_SEND_ON}'
   notifiers 'COMPOSITE::coreo_uni_util_jsrunner.tags-to-notifiers-array.return'
