@@ -182,13 +182,15 @@ end
 ## Send Notifiers
 coreo_uni_util_notify "advise-cloudtrail-to-tag-values" do
   action :${AUDIT_AWS_CLOUDTRAIL_OWNERS_HTML_REPORT}
+  allow_empty ${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}
+  send_on '${AUDIT_AWS_CLOUDTRAIL_SEND_ON}'
   notifiers 'COMPOSITE::coreo_uni_util_jsrunner.tags-to-notifiers-array.return'
 end
 
 coreo_uni_util_notify "advise-cloudtrail-rollup" do
   action :${AUDIT_AWS_CLOUDTRAIL_ROLLUP_REPORT}
   type 'email'
-  allow_empty true
+  allow_empty ${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}
   send_on '${AUDIT_AWS_CLOUDTRAIL_SEND_ON}'
   payload '
 composite name: PLAN::stack_name
