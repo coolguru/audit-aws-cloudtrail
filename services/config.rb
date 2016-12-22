@@ -7,7 +7,7 @@ coreo_aws_advisor_alert "cloudtrail-service-disabled" do
   display_name "Cloudtrail Service is disabled"
   description "CloudTrail logging is not enabled for this region. It should be enabled."
   category "Audit"
-  suggested_action "Enable CloudTrail logs"
+  suggested_action "Enable CloudTrail logs for each region."
   level "Warning"
   objectives ["trails"]
   formulas ["count"]
@@ -19,9 +19,12 @@ end
 coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
   action :define
   service :cloudtrail
-  category "Inventory"
-  suggested_action "None."
-  level "Informational"
+  link "http://kb.cloudcoreo.com/cloudtrail-trail-with-global.html"
+  display_name "Global Cloudtrail is not enabled"
+  description "Global CloudTrail logging is not enabled. At least one Global Cloudtrail should be enabled."
+  category "Audit"
+  suggested_action "Enable Global CloudTrail logs"
+  level "Warning"
   objectives ["trails"]
   audit_objects ["trail_list.include_global_service_events"]
   operators ["=="]
