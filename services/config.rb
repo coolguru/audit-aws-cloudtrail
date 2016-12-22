@@ -20,6 +20,8 @@ coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
   action :define
   service :cloudtrail
   link "http://kb.cloudcoreo.com/cloudtrail-trail-with-global.html"
+  display_name "Global Cloudtrail is not enabled"
+  description "Global CloudTrail logging is not enabled. At least one Global Cloudtrail should be enabled."
   category "Audit"
   suggested_action "Enable Global CloudTrail logs"
   level "Warning"
