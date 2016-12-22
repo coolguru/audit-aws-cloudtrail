@@ -127,7 +127,7 @@ coreo_uni_util_variables "update-advisor-output" do
 end
 
 coreo_uni_util_notify "advise-cloudtrail-json" do
-  action :notify
+  action :nothing
   type 'email'
   allow_empty ${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}
   send_on '${AUDIT_AWS_CLOUDTRAIL_SEND_ON}'
