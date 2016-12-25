@@ -18,6 +18,11 @@ variables:
         default: "change"
     AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT:
         description: "Enter the email address(es) that will receive notifications. If more than one, separate each with a comma."
+        required: false
+        type: string
+        default:
+    AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT_2:
+        description: "Enter the email address(es) that will receive notifications. If more than one, separate each with a comma."
         required: true
         type: string
         default:
@@ -27,6 +32,7 @@ variables:
         type: array
         default:
             - us-east-1
+            - foo-bar
             - us-east-2
             - us-west-1
             - us-west-2
@@ -45,4 +51,4 @@ variables:
         description: "Enter an AWS tag whose value is an email address of owner of the ELB object. (Optional)"
         required: false
         type: string
-        default: "NOT_A_TAG"
+        default: "NOT_A_TAG_2"
