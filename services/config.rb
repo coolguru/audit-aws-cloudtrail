@@ -38,12 +38,6 @@ coreo_aws_advisor_alert "no-global-trails" do
   category "Inventory"
   suggested_action "The metadata for this definition is defined in the jsrunner below. Do not put metadata here."
   level "Informational"
-  #link "http://kb.cloudcoreo.com/mydoc_cloudtrail-trail-with-global.html"
-  #display_name "Global Cloudtrail is not enabled"
-  #description "Global CloudTrail logging is not enabled. At least one Global Cloudtrail should be enabled."
-  #category "Audit"
-  #suggested_action "Enable Global CloudTrail logs"
-  #level "Warning"
   objectives [""]
   audit_objects [""]
   operators [""]
