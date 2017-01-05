@@ -3,11 +3,11 @@
 coreo_aws_advisor_alert "cloudtrail-service-disabled" do
   action :define
   service :cloudtrail
-  link "http://kb.cloudcoreo.com/cloudtrail-service-disabled.html"
+  link "http://kb.cloudcoreo.com/mydoc_cloudtrail-service-disabled.html"
   display_name "Cloudtrail Service is disabled"
   description "CloudTrail logging is not enabled for this region. It should be enabled."
   category "Audit"
-  suggested_action "Enable CloudTrail logs"
+  suggested_action "Enable CloudTrail logs for each region."
   level "Warning"
   objectives ["trails"]
   formulas ["count"]
@@ -19,9 +19,12 @@ end
 coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
   action :define
   service :cloudtrail
-  category "Inventory"
-  suggested_action "None."
-  level "Informational"
+  link "http://kb.cloudcoreo.com/mydoc_unused-alert-definition.html"
+  display_name "CloudCoreo Use Only"
+  description "This is an internally defined alert."
+  category "Internal"
+  suggested_action "Ignore"
+  level "Internal"
   objectives ["trails"]
   audit_objects ["trail_list.include_global_service_events"]
   operators ["=="]
@@ -33,7 +36,7 @@ coreo_aws_advisor_alert "no-global-trails" do
   action :nothing
   service :cloudtrail
   category "Inventory"
-  suggested_action "None."
+  suggested_action "The metadata for this definition is defined in the jsrunner below. Do not put metadata here."
   level "Informational"
   objectives [""]
   audit_objects [""]
@@ -95,13 +98,14 @@ if (nRegionsWithGlobal == 0) {
   noGlobalsAlert =
           { violations:
             { 'no-global-trails':
-               { 
-                  'display_name': 'Cloudtrail global logging is disabled',
-                  'description': 'CloudTrail global service logging is not enabled for the selected regions.',
-                 'category': 'Audit',
-                 'suggested_action': 'Enable CloudTrail global service logging in at least one region',
-                 'level': 'Warning',
-                 'region': createRegionStr
+               {
+                'link' : 'http://kb.cloudcoreo.com/mydoc_cloudtrail-trail-with-global.html',
+                'display_name': 'Cloudtrail global logging is disabled',
+                'description': 'CloudTrail global service logging is not enabled for the selected regions.',
+                'category': 'Audit',
+                'suggested_action': 'Enable CloudTrail global service logging in at least one region',
+                'level': 'Warning',
+                'region': createRegionStr
                }
             },
             tags: []
@@ -125,7 +129,7 @@ coreo_uni_util_variables "update-advisor-output" do
 end
 
 coreo_uni_util_notify "advise-cloudtrail-json" do
-  action :notify
+  action :nothing
   type 'email'
   allow_empty ${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}
   send_on '${AUDIT_AWS_CLOUDTRAIL_SEND_ON}'
