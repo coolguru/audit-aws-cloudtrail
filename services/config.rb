@@ -72,9 +72,6 @@ var result = {};
 result['composite name'] = json_input['composite name'];
 result['plan name'] = json_input['plan name'];
 result['regions'] = var_regions;
-result['number_of_checks'] = json_input['number_of_checks'];
-result['number_of_violations'] = json_input['number_of_violations'];
-result['number_violations_ignored'] = json_input['number_violations_ignored'];
 result['violations'] = {};
 var nRegionsWithGlobal = 0;
 var nViolations = 0;
@@ -135,7 +132,7 @@ coreo_uni_util_notify "advise-cloudtrail-json" do
   payload_type "json"
   endpoint ({
       :to => '${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}', :subject => 'CloudCoreo cloudtrail advisor alerts on PLAN::stack_name :: PLAN::name'
-  })
+  }) 
 end
 
 ## Create Notifiers
@@ -247,7 +244,6 @@ coreo_uni_util_notify "advise-cloudtrail-rollup" do
   payload '
 composite name: PLAN::stack_name
 plan name: PLAN::name
-number_violations_ignored: COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_ignored_violations
 COMPOSITE::coreo_uni_util_jsrunner.tags-rollup.return
   '
   payload_type 'text'
