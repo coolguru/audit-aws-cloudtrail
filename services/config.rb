@@ -36,9 +36,9 @@ end
 coreo_aws_advisor_alert "no-global-trails" do
   action :nothing
   service :cloudtrail
-  category "Inventory"
+  category "jsrunner"
   suggested_action "The metadata for this definition is defined in the jsrunner below. Do not put metadata here."
-  level "Informational"
+  level "jsrunner"
   objectives [""]
   audit_objects [""]
   operators [""]
