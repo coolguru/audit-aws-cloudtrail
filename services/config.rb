@@ -34,7 +34,7 @@ coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
 end
 
 coreo_aws_advisor_alert "no-global-trails" do
-  action :nothing
+  action :define
   service :cloudtrail
   category "jsrunner"
   suggested_action "The metadata for this definition is defined in the jsrunner below. Do not put metadata here."
