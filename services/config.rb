@@ -19,6 +19,7 @@ end
 coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
   action :define
   service :cloudtrail
+  include_violations_in_count false
   link "http://kb.cloudcoreo.com/mydoc_unused-alert-definition.html"
   display_name "CloudCoreo Use Only"
   description "This is an internally defined alert."
@@ -33,11 +34,11 @@ coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
 end
 
 coreo_aws_advisor_alert "no-global-trails" do
-  action :nothing
+  action :define
   service :cloudtrail
-  category "Inventory"
+  category "jsrunner"
   suggested_action "The metadata for this definition is defined in the jsrunner below. Do not put metadata here."
-  level "Informational"
+  level "jsrunner"
   objectives [""]
   audit_objects [""]
   operators [""]
@@ -75,9 +76,6 @@ var result = {};
 result['composite name'] = json_input['composite name'];
 result['plan name'] = json_input['plan name'];
 result['regions'] = var_regions;
-result['number_of_checks'] = json_input['number_of_checks'];
-result['number_of_violations'] = json_input['number_of_violations'];
-result['number_violations_ignored'] = json_input['number_violations_ignored'];
 result['violations'] = {};
 var nRegionsWithGlobal = 0;
 var nViolations = 0;
@@ -97,26 +95,30 @@ for (var key in json_input['violations']) {
 console.log('Number of regions with global: ' + nRegionsWithGlobal);
 var noGlobalsAlert = {};
 if (nRegionsWithGlobal == 0) {
-  nViolations++;
-  noGlobalsAlert =
-          { violations:
-            { 'no-global-trails':
-               {
-                'link' : 'http://kb.cloudcoreo.com/mydoc_cloudtrail-trail-with-global.html',
-                'display_name': 'Cloudtrail global logging is disabled',
-                'description': 'CloudTrail global service logging is not enabled for the selected regions.',
-                'category': 'Audit',
-                'suggested_action': 'Enable CloudTrail global service logging in at least one region',
-                'level': 'Warning',
-                'region': createRegionStr
-               }
-            },
-            tags: []
-          };
-  var key = 'selected regions';
-  console.log('saving global violation on key: ' + key + ' | violation: ' + JSON.stringify(noGlobalsAlert));
-  result['violations']['selected-regions'] = noGlobalsAlert;
+  regionArray.forEach(region => {
+    nViolations++;
+    noGlobalsAlert =
+            { violations:
+              { 'no-global-trails':
+                 {
+                  'link' : 'http://kb.cloudcoreo.com/mydoc_cloudtrail-trail-with-global.html',
+                  'display_name': 'Cloudtrail global logging is disabled',
+                  'description': 'CloudTrail global service logging is not enabled for the selected regions.',
+                  'category': 'Audit',
+                  'suggested_action': 'Enable CloudTrail global service logging in at least one region',
+                  'level': 'Warning',
+                  'region': region
+                 }
+              },
+              tags: []
+            };
+    var key = 'selected regions';
+    console.log('saving global violation on key: ' + key + ' | violation: ' + JSON.stringify(noGlobalsAlert));
+    result['violations'][region] = noGlobalsAlert;
+  });
+
 }
+
 console.log('Number of violations: ' + nViolations);
 result['number_of_violations'] = nViolations;
 callback(result);
@@ -126,7 +128,7 @@ end
 coreo_uni_util_variables "update-advisor-output" do
   action :set
   variables([
-       {'COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'}
+       {'COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return.violations'}
       ])
 end
 
@@ -139,7 +141,7 @@ coreo_uni_util_notify "advise-cloudtrail-json" do
   payload_type "json"
   endpoint ({
       :to => '${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}', :subject => 'CloudCoreo cloudtrail advisor alerts on PLAN::stack_name :: PLAN::name'
-  })
+  }) 
 end
 
 ## Create Notifiers
@@ -149,7 +151,7 @@ coreo_uni_util_jsrunner "tags-to-notifiers-array" do
   packages([
         {
           :name => "cloudcoreo-jsrunner-commons",
-          :version => "1.3.3"
+          :version => "1.3.9"
         }       ])
   json_input 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'
   function <<-EOH
@@ -251,7 +253,6 @@ coreo_uni_util_notify "advise-cloudtrail-rollup" do
   payload '
 composite name: PLAN::stack_name
 plan name: PLAN::name
-number_violations_ignored: COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_ignored_violations
 COMPOSITE::coreo_uni_util_jsrunner.tags-rollup.return
   '
   payload_type 'text'
