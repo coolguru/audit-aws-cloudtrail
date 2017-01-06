@@ -115,7 +115,7 @@ if (nRegionsWithGlobal == 0) {
     var key = 'selected regions';
     console.log('saving global violation on key: ' + key + ' | violation: ' + JSON.stringify(noGlobalsAlert));
     if (result['violations'][region]) {
-        result['violations'][region]['violations']['no-global-trails'] = noGlobalsAlert.violations;
+        result['violations'][region]['violations'] = noGlobalsAlert.violations;
     } else {
         result['violations'][region] = noGlobalsAlert;
     }
