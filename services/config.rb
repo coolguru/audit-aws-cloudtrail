@@ -94,26 +94,30 @@ for (var key in json_input['violations']) {
 console.log('Number of regions with global: ' + nRegionsWithGlobal);
 var noGlobalsAlert = {};
 if (nRegionsWithGlobal == 0) {
-  nViolations++;
-  noGlobalsAlert =
-          { violations:
-            { 'no-global-trails':
-               {
-                'link' : 'http://kb.cloudcoreo.com/mydoc_cloudtrail-trail-with-global.html',
-                'display_name': 'Cloudtrail global logging is disabled',
-                'description': 'CloudTrail global service logging is not enabled for the selected regions.',
-                'category': 'Audit',
-                'suggested_action': 'Enable CloudTrail global service logging in at least one region',
-                'level': 'Warning',
-                'region': createRegionStr
-               }
-            },
-            tags: []
-          };
-  var key = 'selected regions';
-  console.log('saving global violation on key: ' + key + ' | violation: ' + JSON.stringify(noGlobalsAlert));
-  result['violations']['selected-regions'] = noGlobalsAlert;
+  regionArray.forEach(region => {
+    nViolations++;
+    noGlobalsAlert =
+            { violations:
+              { 'no-global-trails':
+                 {
+                  'link' : 'http://kb.cloudcoreo.com/mydoc_cloudtrail-trail-with-global.html',
+                  'display_name': 'Cloudtrail global logging is disabled',
+                  'description': 'CloudTrail global service logging is not enabled for the selected regions.',
+                  'category': 'Audit',
+                  'suggested_action': 'Enable CloudTrail global service logging in at least one region',
+                  'level': 'Warning',
+                  'region': region
+                 }
+              },
+              tags: []
+            };
+    var key = 'selected regions';
+    console.log('saving global violation on key: ' + key + ' | violation: ' + JSON.stringify(noGlobalsAlert));
+    result['violations'][region] = noGlobalsAlert;
+  });
+
 }
+
 console.log('Number of violations: ' + nViolations);
 result['number_of_violations'] = nViolations;
 callback(result);
@@ -147,7 +151,7 @@ coreo_uni_util_jsrunner "tags-to-notifiers-array" do
   packages([
         {
           :name => "cloudcoreo-jsrunner-commons",
-          :version => "1.3.3"
+          :version => "1.3.7"
         }       ])
   json_input 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'
   function <<-EOH
