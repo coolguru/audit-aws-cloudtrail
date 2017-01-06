@@ -19,6 +19,7 @@ end
 coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
   action :define
   service :cloudtrail
+  include_violations_in_count false
   link "http://kb.cloudcoreo.com/mydoc_unused-alert-definition.html"
   display_name "CloudCoreo Use Only"
   description "This is an internally defined alert."
@@ -35,9 +36,9 @@ end
 coreo_aws_advisor_alert "no-global-trails" do
   action :nothing
   service :cloudtrail
-  category "Inventory"
+  category "jsrunner"
   suggested_action "The metadata for this definition is defined in the jsrunner below. Do not put metadata here."
-  level "Informational"
+  level "jsrunner"
   objectives [""]
   audit_objects [""]
   operators [""]
@@ -127,8 +128,7 @@ end
 coreo_uni_util_variables "update-advisor-output" do
   action :set
   variables([
-       {'COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner
-.cloudtrail-aggregate.return.violations'}
+       {'COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return.violations'}
       ])
 end
 
