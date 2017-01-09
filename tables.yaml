@@ -1,0 +1,5 @@
+tables:
+  cloudtrail-inventory:
+  cloudtrail-service-disabled:
+  no-global-trails:
+

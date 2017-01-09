@@ -210,6 +210,56 @@ coreo_uni_util_jsrunner "jsrunner-process-suppressions" do
 EOH
 end
 
+coreo_uni_util_jsrunner "jsrunner-output-table-csv" do
+  action :run
+  provide_composite_access true
+  json_input 'COMPOSITE::coreo_uni_util_jsrunner.jsrunner-process-suppressions.return'
+  packages([
+               {
+                   :name => "js-yaml",
+                   :version => "3.7.0"
+               }       ])
+  function <<-EOH
+    var fs = require('fs');
+    var yaml = require('js-yaml');
+
+// Get document, or throw exception on error
+    try {
+        var tables = yaml.safeLoad(fs.readFileSync('./tables.yaml', 'utf8'));
+        console.log(tables);
+    } catch (e) {
+        console.log(e);
+    }
+
+    var result = {};
+    result["composite name"] = json_input["composite name"];
+    result["number_of_violations"] = json_input["number_of_violations"];
+    result["plan name"] = json_input["plan name"];
+    result["regions"] = json_input["regions"];
+    result["violations"] = {};
+
+    for (var violator_id in json_input.violations) {
+        result["violations"][violator_id] = {};
+        result["violations"][violator_id].tags = json_input.violations[violator_id].tags;
+        result["violations"][violator_id].violations = {}
+        //console.log(violator_id);
+        for (var rule_id in json_input.violations[violator_id].violations) {
+            console.log("object " + violator_id + " violates rule " + rule_id);
+            for (var table_rule_id in tables["tables"]) {
+                for (var suppress_violator_id in tables["tables"][table_rule_id]) {
+                }
+            }
+        }
+    }
+
+    var rtn = result;
+
+    callback(result);
+
+
+EOH
+end
+
 coreo_uni_util_variables "update-advisor-output" do
   action :set
   variables([
