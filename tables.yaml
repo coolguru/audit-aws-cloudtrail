@@ -1,5 +1,28 @@
 tables:
   cloudtrail-inventory:
+    "AWS Object ID":
+      - abc
+    "Region":
+      - abc
+    "AWS Console":
+      - abc
+    "Tags":
+      - abc
   cloudtrail-service-disabled:
+    "AWS Object ID":
+      - abc
+    "Region":
+      - abc
+    "AWS Console":
+      - abc
+    "Tags":
+      - abc
   no-global-trails:
-
+    "AWS Object ID":
+      - abc
+    "Region":
+      - abc
+    "AWS Console":
+      - abc
+    "Tags":
+      - abc
