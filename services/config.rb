@@ -11,7 +11,7 @@ coreo_aws_advisor_alert "cloudtrail-inventory" do
   suggested_action "None."
   level "Informational"
   objectives ["trails"]
-  audit_objects ["trail_list"]
+  audit_objects ["trail_list.name"]
   operators ["=~"]
   alert_when [//]
   id_map "object.trail_list.name"
