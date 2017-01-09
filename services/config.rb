@@ -13,7 +13,7 @@ coreo_aws_advisor_alert "cloudtrail-inventory" do
   objectives ["trails"]
   audit_objects ["trail_list"]
   operators ["=~"]
-  alert_when [//]
+  alert_when [/.*/]
 end
 
 coreo_aws_advisor_alert "cloudtrail-service-disabled" do
