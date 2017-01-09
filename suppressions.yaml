@@ -1,3 +1,6 @@
 suppressions:
   not-a-rule:
     - not-an-object
+  cloudtrail-service-disabled:
+    - eu-west-1
+
