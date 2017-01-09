@@ -168,21 +168,37 @@ coreo_uni_util_jsrunner "jsrunner-process-suppressions" do
     }
 
     var result = {};
-    for (var inputKey in json_input) {
-        var thisKey = inputKey;
-        var inst_id = inputKey;
-        is_violation = true;
-        for (var suppression in suppressions["suppressions"]["ec2-aws-linux-latest-not"]) {
-            value = suppressions["suppressions"]["ec2-aws-linux-latest-not"][suppression];
-            if (value === inst_id) {
-                console.log("got a match - this violation is suppressed");
-                is_violation = false;
-            }
+    result["composite name"] = json_input["composite name"];
+    result["number_of_violations"] = json_input["number_of_violations"];
+    result["plan name"] = json_input["plan name"];
+    result["regions"] = json_input["regions"];
+    result["violations"] = {};
 
-        }
-        if (is_violation === true) {
-            console.log("no match - this is a violation so copy to result structure");
-            result[thisKey] = json_input[thisKey];
+    for (var violator_id in json_input.violations) {
+        result["violations"][violator_id] = {};
+        result["violations"][violator_id].tags = json_input.violations[violator_id].tags;
+        result["violations"][violator_id].violations = {}
+        //console.log(violator_id);
+        for (var rule_id in json_input.violations[violator_id].violations) {
+            console.log("object " + violator_id + " violates rule " + rule_id);
+            is_violation = true;
+            for (var suppress_rule_id in suppressions["suppressions"]) {
+                for (var suppress_violator_id in suppressions["suppressions"][suppress_rule_id]) {
+                    var suppress_obj_id = suppressions["suppressions"][suppress_rule_id][suppress_violator_id];
+                    console.log(" compare: " + rule_id + ":" + violator_id + " <> " + suppress_rule_id + ":" + suppress_obj_id);
+                    if (rule_id === suppress_rule_id) {
+                        console.log("    have a suppression for rule: " + rule_id);
+                        if (violator_id === suppress_obj_id) {
+                            console.log("    *** found violation to suppress: " + suppress_obj_id);
+                            is_violation = false;
+                        }
+                    }
+                }
+            }
+            if (is_violation) {
+                console.log("    +++ not suppressed - including in results");
+                result["violations"][violator_id].violations[rule_id] = json_input.violations[violator_id].violations[rule_id];
+            }
         }
     }
 
