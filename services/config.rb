@@ -146,10 +146,58 @@ callback(result);
   EOH
 end
 
+coreo_uni_util_jsrunner "jsrunner-process-suppressions" do
+  action :run
+  provide_composite_access true
+  json_input 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'
+  packages([
+               {
+                   :name => "js-yaml",
+                   :version => "3.7.0"
+               }       ])
+  function <<-EOH
+    var fs = require('fs');
+    var yaml = require('js-yaml');
+
+// Get document, or throw exception on error
+    try {
+        var suppressions = yaml.safeLoad(fs.readFileSync('./suppressions.yaml', 'utf8'));
+        console.log(suppressions);
+    } catch (e) {
+        console.log(e);
+    }
+
+    var result = {};
+    for (var inputKey in json_input) {
+        var thisKey = inputKey;
+        var inst_id = inputKey;
+        is_violation = true;
+        for (var suppression in suppressions["suppressions"]["ec2-aws-linux-latest-not"]) {
+            value = suppressions["suppressions"]["ec2-aws-linux-latest-not"][suppression];
+            if (value === inst_id) {
+                console.log("got a match - this violation is suppressed");
+                is_violation = false;
+            }
+
+        }
+        if (is_violation === true) {
+            console.log("no match - this is a violation so copy to result structure");
+            result[thisKey] = json_input[thisKey];
+        }
+    }
+
+    var rtn = result;
+
+    callback(result);
+
+
+EOH
+end
+
 coreo_uni_util_variables "update-advisor-output" do
   action :set
   variables([
-       {'COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return.violations'}
+       {'COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.jsrunner-process-suppressions.return.violations'}
       ])
 end
 
