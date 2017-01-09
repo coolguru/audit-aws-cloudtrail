@@ -1,5 +1,21 @@
 # service-disabled
 
+coreo_aws_advisor_alert "cloudtrail-inventory" do
+  action :define
+  service :cloudtrail
+  link "http://kb.cloudcoreo.com/mydoc_inventory.html"
+  include_violations_in_count false
+  display_name "CloudTrail Inventory"
+  description "This rule performs an inventory on all CloudTrails in the target AWS account."
+  category "Inventory"
+  suggested_action "None."
+  level "Informational"
+  objectives ["trails"]
+  audit_objects ["trail_list"]
+  operators ["=~"]
+  alert_when [//]
+end
+
 coreo_aws_advisor_alert "cloudtrail-service-disabled" do
   action :define
   service :cloudtrail
