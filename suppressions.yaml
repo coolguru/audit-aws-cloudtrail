@@ -3,4 +3,8 @@ suppressions:
     - not-an-object
   cloudtrail-service-disabled:
     - eu-west-1
+  no-global-trails:
+    - us-east-2
+    - us-west-1
+
 
