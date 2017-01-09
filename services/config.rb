@@ -34,7 +34,7 @@ coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
 end
 
 coreo_aws_advisor_alert "no-global-trails" do
-  action :nothing
+  action :define
   service :cloudtrail
   category "jsrunner"
   suggested_action "The metadata for this definition is defined in the jsrunner below. Do not put metadata here."
@@ -97,24 +97,30 @@ var noGlobalsAlert = {};
 if (nRegionsWithGlobal == 0) {
   regionArray.forEach(region => {
     nViolations++;
+    noGlobalsMetadata =
+    {
+        'link' : 'http://kb.cloudcoreo.com/mydoc_cloudtrail-trail-with-global.html',
+        'display_name': 'Cloudtrail global logging is disabled',
+        'description': 'CloudTrail global service logging is not enabled for the selected regions.',
+        'category': 'Audit',
+        'suggested_action': 'Enable CloudTrail global service logging in at least one region',
+        'level': 'Warning',
+        'region': region
+    };
     noGlobalsAlert =
             { violations:
               { 'no-global-trails':
-                 {
-                  'link' : 'http://kb.cloudcoreo.com/mydoc_cloudtrail-trail-with-global.html',
-                  'display_name': 'Cloudtrail global logging is disabled',
-                  'description': 'CloudTrail global service logging is not enabled for the selected regions.',
-                  'category': 'Audit',
-                  'suggested_action': 'Enable CloudTrail global service logging in at least one region',
-                  'level': 'Warning',
-                  'region': region
-                 }
+              noGlobalsMetadata
               },
               tags: []
             };
     var key = 'selected regions';
     console.log('saving global violation on key: ' + key + ' | violation: ' + JSON.stringify(noGlobalsAlert));
-    result['violations'][region] = noGlobalsAlert;
+    if (result['violations'][region]) {
+        result['violations'][region]['violations']['no-global-trails'] = noGlobalsMetadata;
+    } else {
+        result['violations'][region] = noGlobalsAlert;
+    }
   });
 
 }
