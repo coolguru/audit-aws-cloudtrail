@@ -274,7 +274,7 @@ coreo_uni_util_jsrunner "jsrunner-output-table" do
                         re = /__RULE__/gi;
                         resolved_entry = resolved_entry.replace(re, rule_id);
 
-                        re = /\+([^\+]+)\+/;
+                        re = /\\+([^\+]+)\\+/;
                         var match;
                         while (match = re.exec(resolved_entry)) {
                             console.log(match);
