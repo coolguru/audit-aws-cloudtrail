@@ -222,8 +222,8 @@ coreo_uni_util_jsrunner "jsrunner-output-table" do
   function <<-EOH
 
     Object.byString = function(o, s) {
-    s = s.replace(/\\[(\w+)\\]/g, '.$1'); // convert indexes to properties
-    s = s.replace(/^\\./, '');           // strip a leading dot
+    s = s.replace(/\[(w+)\]/g, '.$1'); // convert indexes to properties
+    s = s.replace(/^\./, '');           // strip a leading dot
     var a = s.split('.');
     for (var i = 0, n = a.length; i < n; ++i) {
         var k = a[i];
@@ -255,7 +255,7 @@ coreo_uni_util_jsrunner "jsrunner-output-table" do
             if (result[rule_id]) {
             } else {
                 result[rule_id] = {};
-                result[rule_id]["header"] = {};
+                result[rule_id]["header"] = "";
                 result[rule_id]["nrows"] = 0;
                 result[rule_id]["rows"] = {};
             }
@@ -265,9 +265,13 @@ coreo_uni_util_jsrunner "jsrunner-output-table" do
                     //console.log("found a table entry for rule: " + rule_id);
                     var col_num = 0;
                     var col_num_str = col_num.toString();
+                    var this_row = "";
                     for (var table_entry in tables[table_rule_id]) {
                         console.log("  " + table_entry + " is " + tables[table_rule_id][table_entry]);
-                        result[rule_id]["header"][col_num_str] = {};
+                        var indx = result[rule_id]["header"].indexOf(table_entry);
+                        if (result[rule_id]["header"].indexOf(table_entry) === -1) {
+                            result[rule_id]["header"] = result[rule_id]["header"] + "," + table_entry;
+                        }
                         var resolved_entry = tables[table_rule_id][table_entry];
                         var re = /__OBJECT__/gi;
                         resolved_entry = resolved_entry.replace(re, violator_id);
@@ -277,20 +281,37 @@ coreo_uni_util_jsrunner "jsrunner-output-table" do
                         var tags = null;
                         tags = json_input.violations[violator_id].tags;
                         
-                        re = /\\+([^\+]+)\\+/;
+                        re = /\+([^+]+)\+/;
                         var match;
                         while (match = re.exec(resolved_entry)) {
                             console.log(match);
                             var to_resolve = match[1];
                             var resolved = Object.byString(json_input.violations, to_resolve);
+                            if (resolved && resolved.match(/arn:aws/)) {
+                                resolved = resolved.replace("/", "@");
+                            }
                             resolved_entry = resolved_entry.replace(match[0], resolved);
 
                         }
-                        result[rule_id]["rows"][col_num] = {};
-                        result[rule_id]["rows"][col_num] = resolved_entry;
+                        if (!result[rule_id]["rows"][col_num]) {
+                            result[rule_id]["rows"][col_num] = {};
+                        }
+                        this_row = this_row + "," + resolved_entry;
+
                         col_num++;
-                        result[rule_id]["nrows"]++;
+                        col_num_str = col_num.toString();
+
                     }
+                    result[rule_id]["header"] = result[rule_id]["header"].replace(/^,/, "");
+
+                    var row_num = result[rule_id]["nrows"];
+                    var row_num_str = row_num.toString();
+
+
+                    this_row = this_row.replace(/^,/, "");
+                    result[rule_id]["rows"][row_num_str] = this_row;
+
+                    result[rule_id]["nrows"]++;
                 }
             }
         }
