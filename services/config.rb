@@ -222,8 +222,8 @@ coreo_uni_util_jsrunner "jsrunner-output-table" do
   function <<-EOH
 
     Object.byString = function(o, s) {
-    s = s.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
-    s = s.replace(/^\./, '');           // strip a leading dot
+    s = s.replace(/\\[(\w+)\\]/g, '.$1'); // convert indexes to properties
+    s = s.replace(/^\\./, '');           // strip a leading dot
     var a = s.split('.');
     for (var i = 0, n = a.length; i < n; ++i) {
         var k = a[i];
@@ -274,6 +274,9 @@ coreo_uni_util_jsrunner "jsrunner-output-table" do
                         re = /__RULE__/gi;
                         resolved_entry = resolved_entry.replace(re, rule_id);
 
+                        var tags = null;
+                        tags = json_input.violations[violator_id].tags;
+                        
                         re = /\\+([^\+]+)\\+/;
                         var match;
                         while (match = re.exec(resolved_entry)) {
