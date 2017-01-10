@@ -1,28 +1,9 @@
-tables:
-  cloudtrail-inventory:
-    "AWS Object ID":
-      - abc
-    "Region":
-      - abc
-    "AWS Console":
-      - abc
-    "Tags":
-      - abc
-  cloudtrail-service-disabled:
-    "AWS Object ID":
-      - abc
-    "Region":
-      - abc
-    "AWS Console":
-      - abc
-    "Tags":
-      - abc
-  no-global-trails:
-    "AWS Object ID":
-      - abc
-    "Region":
-      - abc
-    "AWS Console":
-      - abc
-    "Tags":
-      - abc
+cloudtrail-inventory:
+  "Trail Name": "__OBJECT__"
+  "AWS Region": "+__OBJECT__.violations.__RULE__.region+"
+  "AWS Tags": "+__OBJECT__.tags+"
+cloudtrail-service-disabled:
+  "AWS Region": "+__OBJECT__.violations.__RULE__.region+#https://+__OBJECT__.violations.__RULE__.region+.console.aws.amazon.com/cloudtrail/home?region=+__OBJECT__.violations.__RULE__.region+"
+no-global-trails:
+  "AWS Region": "+__OBJECT__.violations.__RULE__.region+#https://+__OBJECT__.violations.__RULE__.region+.console.aws.amazon.com/cloudtrail/home?region=+__OBJECT__.violations.__RULE__.region+"
+

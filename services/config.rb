@@ -210,7 +210,7 @@ coreo_uni_util_jsrunner "jsrunner-process-suppressions" do
 EOH
 end
 
-coreo_uni_util_jsrunner "jsrunner-output-table-csv" do
+coreo_uni_util_jsrunner "jsrunner-output-table" do
   action :run
   provide_composite_access true
   json_input 'COMPOSITE::coreo_uni_util_jsrunner.jsrunner-process-suppressions.return'
@@ -220,6 +220,22 @@ coreo_uni_util_jsrunner "jsrunner-output-table-csv" do
                    :version => "3.7.0"
                }       ])
   function <<-EOH
+
+    Object.byString = function(o, s) {
+    s = s.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
+    s = s.replace(/^\./, '');           // strip a leading dot
+    var a = s.split('.');
+    for (var i = 0, n = a.length; i < n; ++i) {
+        var k = a[i];
+        if (k in o) {
+            o = o[k];
+        } else {
+            return;
+        }
+    }
+    return o;
+    }
+
     var fs = require('fs');
     var yaml = require('js-yaml');
 
@@ -232,21 +248,46 @@ coreo_uni_util_jsrunner "jsrunner-output-table-csv" do
     }
 
     var result = {};
-    result["composite name"] = json_input["composite name"];
-    result["number_of_violations"] = json_input["number_of_violations"];
-    result["plan name"] = json_input["plan name"];
-    result["regions"] = json_input["regions"];
-    result["violations"] = {};
 
     for (var violator_id in json_input.violations) {
-        result["violations"][violator_id] = {};
-        result["violations"][violator_id].tags = json_input.violations[violator_id].tags;
-        result["violations"][violator_id].violations = {}
-        //console.log(violator_id);
         for (var rule_id in json_input.violations[violator_id].violations) {
             console.log("object " + violator_id + " violates rule " + rule_id);
-            for (var table_rule_id in tables["tables"]) {
-                for (var suppress_violator_id in tables["tables"][table_rule_id]) {
+            if (result[rule_id]) {
+            } else {
+                result[rule_id] = {};
+                result[rule_id]["header"] = {};
+                result[rule_id]["nrows"] = 0;
+                result[rule_id]["rows"] = {};
+            }
+            for (var table_rule_id in tables) {
+                //console.log(table_rule_id);
+                if (rule_id === table_rule_id) {
+                    //console.log("found a table entry for rule: " + rule_id);
+                    var col_num = 0;
+                    var col_num_str = col_num.toString();
+                    for (var table_entry in tables[table_rule_id]) {
+                        console.log("  " + table_entry + " is " + tables[table_rule_id][table_entry]);
+                        result[rule_id]["header"][col_num_str] = {};
+                        var resolved_entry = tables[table_rule_id][table_entry];
+                        var re = /__OBJECT__/gi;
+                        resolved_entry = resolved_entry.replace(re, violator_id);
+                        re = /__RULE__/gi;
+                        resolved_entry = resolved_entry.replace(re, rule_id);
+
+                        re = /\+([^\+]+)\+/;
+                        var match;
+                        while (match = re.exec(resolved_entry)) {
+                            console.log(match);
+                            var to_resolve = match[1];
+                            var resolved = Object.byString(json_input.violations, to_resolve);
+                            resolved_entry = resolved_entry.replace(match[0], resolved);
+
+                        }
+                        result[rule_id]["rows"][col_num] = {};
+                        result[rule_id]["rows"][col_num] = resolved_entry;
+                        col_num++;
+                        result[rule_id]["nrows"]++;
+                    }
                 }
             }
         }
