@@ -42,7 +42,7 @@ variables:
         type: string
         default: "notify"
     AUDIT_AWS_CLOUDTRAIL_OWNER_TAG:
-        description: "Enter an AWS tag whose value is an email address of owner of the ELB object. (Optional)"
+        description: "Enter an AWS tag whose value is an email address of the owner of the Cloudtrail object. (Optional)"
         required: false
         type: string
         default: "NOT_A_TAG"
