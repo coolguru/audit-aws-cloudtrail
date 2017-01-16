@@ -1,10 +1,10 @@
 
 cloudtrail-service-disabled:
-  "AWS Object ID": "https://console.aws.amazon.com/cloudtrail/home?region=+__OBJECT__.violations.__RULE__.region+#"
+  "AWS Object ID": "__OBJECT__~https://console.aws.amazon.com/cloudtrail/home?region=+__OBJECT__.violations.__RULE__.region+#"
   "AWS Region": "+__OBJECT__.violations.__RULE__.region+"
   "AWS Tags": "__TAGS__"
 no-global-trails:
-  "AWS Object ID": "https://console.aws.amazon.com/cloudtrail/home?region=+__OBJECT__.violations.__RULE__.region+#"
+  "AWS Object ID": "__OBJECT__~https://console.aws.amazon.com/cloudtrail/home?region=+__OBJECT__.violations.__RULE__.region+#"
   "AWS Region": "+__OBJECT__.violations.__RULE__.region+"
   "AWS Tags": "__TAGS__"
 cloudtrail-inventory:
