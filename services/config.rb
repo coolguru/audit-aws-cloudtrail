@@ -14,6 +14,7 @@ coreo_aws_advisor_alert "cloudtrail-service-disabled" do
   audit_objects ["trail_list"]
   operators ["=="]
   alert_when [0]
+  id_map "stack.current_region"
 end
 
 coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
@@ -30,7 +31,7 @@ coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
   audit_objects ["trail_list.include_global_service_events"]
   operators ["=="]
   alert_when [true]
-  id_map "object.trail_list.name"
+  id_map "stack.current_region"
 end
 
 coreo_aws_advisor_alert "no-global-trails" do

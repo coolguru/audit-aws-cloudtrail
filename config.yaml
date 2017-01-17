@@ -1,6 +1,6 @@
 variables:
     AUDIT_AWS_CLOUDTRAIL_ALERT_LIST:
-        description: "Which alerts would you like to check for? (Default is all Cloudtrail alerts)"
+        description: "Which alerts would you like to check for? Default is all Cloudtrail alerts."
         required: true
         type: array
         default:
@@ -32,12 +32,12 @@ variables:
             - us-west-2
             - eu-west-1
     AUDIT_AWS_CLOUDTRAIL_ROLLUP_REPORT:
-        description: "Would you like to send a Summary report? Options - notify / nothing. Default is no / nothing."
+        description: "Would you like to send a rollup Cloudtrail report? This is a short email that summarizes the number of checks performed and the number of violations found. Options - notify / nothing. Default is nothing."
         required: true
         type: string
         default: "nothing"
     AUDIT_AWS_CLOUDTRAIL_HTML_REPORT:
-        description: notify or nothing
+        description: "Would you like to send a full Cloudtrail report? This is an email that details any violations found and includes a list of the violating cloud objects. Options - notify / nothing. Default is notify."
         required: true
         type: string
         default: "notify"
