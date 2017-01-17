@@ -1,4 +1,3 @@
-
 cloudtrail-service-disabled:
   "AWS Object ID": "__OBJECT__~https://console.aws.amazon.com/cloudtrail/home?region=+__OBJECT__.violations.__RULE__.region+#"
   "AWS Region": "+__OBJECT__.violations.__RULE__.region+"
