@@ -2,7 +2,7 @@
 
 coreo_aws_advisor_alert "cloudtrail-inventory" do
   action :define
-  service :trail
+  service :cloudtrail
   # link "http://kb.cloudcoreo.com/mydoc_elb-inventory.html"
   include_violations_in_count false
   display_name "ELB Object Inventory"
