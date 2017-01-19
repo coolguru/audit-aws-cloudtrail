@@ -259,8 +259,8 @@ coreo_uni_util_jsrunner "tags-to-notifiers-array" do
         }       ])
   json_input '{ "composite name":"PLAN::stack_name",
                 "plan name":"PLAN::name",
-                "table": COMPOSITE::coreo_uni_util_jsrunner.jsrunner-process-table.return,
-                "violations": COMPOSITE::coreo_uni_util_jsrunner.jsrunner-process-suppression.return}'
+                "table": COMPOSITE::coreo_uni_util_jsrunner.jsrunner-process-table-cloudtrail.return,
+                "violations": COMPOSITE::coreo_uni_util_jsrunner.jsrunner-process-suppression-cloudtrail.return}'
   function <<-EOH
   
 const JSON_INPUT = json_input;
