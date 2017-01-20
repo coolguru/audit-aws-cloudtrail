@@ -21,7 +21,7 @@ This repo is designed to work with CloudCoreo. It will monitor CloudTrail agains
 ## Required variables with default
 
 ### `AUDIT_AWS_CLOUDTRAIL_ALERT_LIST`:
-  * description: Which alerts would you like to check for? (Default is all Cloudtrail alerts)
+  * description: Which alerts would you like to check for? Default is all Cloudtrail alerts.
   * default: cloudtrail-service-disabled, cloudtrail-trail-with-global
 
 ### `AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY`:
@@ -37,18 +37,18 @@ This repo is designed to work with CloudCoreo. It will monitor CloudTrail agains
   * default: us-east-1, us-east-2, us-west-1, us-west-2, eu-west-1
 
 ### `AUDIT_AWS_CLOUDTRAIL_ROLLUP_REPORT`:
-  * description: Would you like to send a Summary report? Options - notify / nothing. Default is no / nothing.
+  * description: Would you like to send a rollup Cloudtrail report? This is a short email that summarizes the number of checks performed and the number of violations found. Options - notify / nothing. Default is nothing.
   * default: nothing
 
 ### `AUDIT_AWS_CLOUDTRAIL_HTML_REPORT`:
-  * description: notify or nothing
+  * description: Would you like to send a full Cloudtrail report? This is an email that details any violations found and includes a list of the violating cloud objects. Options - notify / nothing. Default is notify.
   * default: notify
 
 
 ## Optional variables with default
 
 ### `AUDIT_AWS_CLOUDTRAIL_OWNER_TAG`:
-  * description: Enter an AWS tag whose value is an email address of owner of the ELB object. (Optional)
+  * description: Enter an AWS tag whose value is an email address of the owner of the Cloudtrail object. (Optional)
   * default: NOT_A_TAG
 
 
