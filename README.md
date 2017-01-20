@@ -22,7 +22,7 @@ This repo is designed to work with CloudCoreo. It will monitor CloudTrail agains
 
 ### `AUDIT_AWS_CLOUDTRAIL_ALERT_LIST`:
   * description: Which alerts would you like to check for? Default is all Cloudtrail alerts.
-  * default: cloudtrail-service-disabled, cloudtrail-trail-with-global
+  * default: cloudtrail-service-disabled, cloudtrail-trail-with-global, cloudtrail-inventory
 
 ### `AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY`:
   * description: Would you like to receive empty reports? Options - true / false. Default is false.
