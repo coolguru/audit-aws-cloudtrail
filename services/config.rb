@@ -1,9 +1,11 @@
-# service-disabled
+###########################################
+# User Visible Rule Definitions
+###########################################
 
 coreo_aws_advisor_alert "cloudtrail-inventory" do
   action :define
   service :cloudtrail
-  # link "http://kb.cloudcoreo.com/mydoc_elb-inventory.html"
+  # link "http://kb.cloudcoreo.com/mydoc-inventory.html"
   include_violations_in_count false
   display_name "ELB Object Inventory"
   description "This rule performs an inventory on all trails in the target AWS account."
@@ -34,6 +36,23 @@ coreo_aws_advisor_alert "cloudtrail-service-disabled" do
   id_map "stack.current_region"
 end
 
+coreo_aws_advisor_alert "no-global-trails" do
+  action :define
+  service :cloudtrail
+  category "jsrunner"
+  suggested_action "The metadata for this definition is defined in the jsrunner below. Do not put metadata here."
+  level "jsrunner"
+  objectives [""]
+  audit_objects [""]
+  operators [""]
+  alert_when [true]
+  id_map ""
+end
+
+###########################################
+# System-Defined (Internal) Rule Definitions
+###########################################
+
 coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
   action :define
   service :cloudtrail
@@ -51,18 +70,10 @@ coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
   id_map "stack.current_region"
 end
 
-coreo_aws_advisor_alert "no-global-trails" do
-  action :define
-  service :cloudtrail
-  category "jsrunner"
-  suggested_action "The metadata for this definition is defined in the jsrunner below. Do not put metadata here."
-  level "jsrunner"
-  objectives [""]
-  audit_objects [""]
-  operators [""]
-  alert_when [true]
-  id_map ""
-end
+###########################################
+# Compsite-Internal Resources follow until end
+#   (Resources used by the system for execution and display processing)
+###########################################
 
 coreo_aws_advisor_cloudtrail "advise-cloudtrail" do
   action :advise
@@ -97,12 +108,9 @@ result['regions'] = var_regions;
 result['violations'] = {};
 var nRegionsWithGlobal = 0;
 var nViolations = 0;
-console.log('json_input: ' + JSON.stringify(json_input));
 for (var key in json_input['violations']) {
   if (json_input['violations'].hasOwnProperty(key)) {
-    console.log('--> checking key: ' + key);
     if (json_input['violations'][key]['violations']['cloudtrail-trail-with-global']) {
-      console.log("Trail has a region with global: " + key);
       nRegionsWithGlobal++;
     } else {
       nViolations++;
@@ -110,7 +118,6 @@ for (var key in json_input['violations']) {
     }
   }
 }
-console.log('Number of regions with global: ' + nRegionsWithGlobal);
 var noGlobalsAlert = {};
 if (nRegionsWithGlobal == 0) {
   regionArray.forEach(region => {
@@ -133,7 +140,6 @@ if (nRegionsWithGlobal == 0) {
               tags: []
             };
     var key = 'selected regions';
-    console.log('saving global violation on key: ' + key + ' | violation: ' + JSON.stringify(noGlobalsAlert));
     if (result['violations'][region]) {
         result['violations'][region]['violations']['no-global-trails'] = noGlobalsMetadata;
     } else {
@@ -143,7 +149,6 @@ if (nRegionsWithGlobal == 0) {
 
 }
 
-console.log('Number of violations: ' + nViolations);
 result['number_of_violations'] = nViolations;
 callback(result);
   EOH
@@ -155,6 +160,115 @@ coreo_uni_util_variables "update-advisor-output" do
        {'COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return.violations'}
       ])
 end
+
+
+
+coreo_uni_util_jsrunner "jsrunner-process-suppression-cloudtrail" do
+  action :run
+  provide_composite_access true
+  json_input 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'
+  packages([
+               {
+                   :name => "js-yaml",
+                   :version => "3.7.0"
+               }       ])
+  function <<-EOH
+  var fs = require('fs');
+  var yaml = require('js-yaml');
+  let suppression;
+  try {
+      suppression = yaml.safeLoad(fs.readFileSync('./suppression.yaml', 'utf8'));
+  } catch(e) {
+
+  }
+  coreoExport('suppression', JSON.stringify(suppression));
+  var violations = json_input.violations;
+  var result = {};
+  var file_date = null;
+  for (var violator_id in violations) {
+      result[violator_id] = {};
+      result[violator_id].tags = violations[violator_id].tags;
+      result[violator_id].violations = {}
+      for (var rule_id in violations[violator_id].violations) {
+          is_violation = true;
+          result[violator_id].violations[rule_id] = violations[violator_id].violations[rule_id];
+          for (var suppress_rule_id in suppression) {
+              for (var suppress_violator_num in suppression[suppress_rule_id]) {
+                  for (var suppress_violator_id in suppression[suppress_rule_id][suppress_violator_num]) {
+                      file_date = null;
+                      var suppress_obj_id_time = suppression[suppress_rule_id][suppress_violator_num][suppress_violator_id];
+                      if (rule_id === suppress_rule_id) {
+
+                          if (violator_id === suppress_violator_id) {
+                              var now_date = new Date();
+
+                              if (suppress_obj_id_time === "") {
+                                  suppress_obj_id_time = new Date();
+                              } else {
+                                  file_date = suppress_obj_id_time;
+                                  suppress_obj_id_time = file_date;
+                              }
+                              var rule_date = new Date(suppress_obj_id_time);
+                              if (isNaN(rule_date.getTime())) {
+                                  rule_date = new Date(0);
+                              }
+
+                              if (now_date <= rule_date) {
+
+                                  is_violation = false;
+
+                                  result[violator_id].violations[rule_id]["suppressed"] = true;
+                                  if (file_date != null) {
+                                      result[violator_id].violations[rule_id]["suppressed_until"] = file_date;
+                                      result[violator_id].violations[rule_id]["suppression_expired"] = false;
+                                  }
+                              }
+                          }
+                      }
+                  }
+
+              }
+          }
+          if (is_violation) {
+
+              if (file_date !== null) {
+                  result[violator_id].violations[rule_id]["suppressed_until"] = file_date;
+                  result[violator_id].violations[rule_id]["suppression_expired"] = true;
+              } else {
+                  result[violator_id].violations[rule_id]["suppression_expired"] = false;
+              }
+              result[violator_id].violations[rule_id]["suppressed"] = false;
+          }
+      }
+  }
+  var rtn = result;
+  
+  callback(result);
+  EOH
+end
+
+coreo_uni_util_jsrunner "jsrunner-process-table-cloudtrail" do
+  action :run
+  provide_composite_access true
+  json_input 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'
+  packages([
+               {
+                   :name => "js-yaml",
+                   :version => "3.7.0"
+               }       ])
+  function <<-EOH
+    var fs = require('fs');
+    var yaml = require('js-yaml');
+    try {
+        var table = yaml.safeLoad(fs.readFileSync('./table.yaml', 'utf8'));
+    }catch(e) {
+  
+    }
+    coreoExport('table', JSON.stringify(table));
+    callback(table);
+  EOH
+end
+
 
 coreo_uni_util_notify "advise-cloudtrail-json" do
   action :nothing
@@ -175,64 +289,39 @@ coreo_uni_util_jsrunner "tags-to-notifiers-array" do
   packages([
         {
           :name => "cloudcoreo-jsrunner-commons",
-          :version => "1.3.9"
+          :version => "1.6.0"
         }       ])
-  json_input 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'
+  json_input '{ "composite name":"PLAN::stack_name",
+                "plan name":"PLAN::name",
+                "table": COMPOSITE::coreo_uni_util_jsrunner.jsrunner-process-table-cloudtrail.return,
+                "violations": COMPOSITE::coreo_uni_util_jsrunner.jsrunner-process-suppression-cloudtrail.return}'
   function <<-EOH
   
-const JSON = json_input;
+const JSON_INPUT = json_input;
 const NO_OWNER_EMAIL = "${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}";
 const OWNER_TAG = "${AUDIT_AWS_CLOUDTRAIL_OWNER_TAG}";
 const ALLOW_EMPTY = "${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}";
 const SEND_ON = "${AUDIT_AWS_CLOUDTRAIL_SEND_ON}";
 const AUDIT_NAME = 'cloudtrail';
+const TABLES = json_input['table'];
+const SHOWN_NOT_SORTED_VIOLATIONS_COUNTER = false;
 
-const ARE_KILL_SCRIPTS_SHOWN = false;
-const EC2_LOGIC = ''; // you can choose 'and' or 'or';
-const EXPECTED_TAGS = ['example_2', 'example_1'];
-
-const WHAT_NEED_TO_SHOWN = {
-    OBJECT_ID: {
-        headerName: 'AWS Object ID',
-        isShown: true,
-    },
-    REGION: {
-        headerName: 'Region',
-        isShown: true,
-    },
-    AWS_CONSOLE: {
-        headerName: 'AWS Console',
-        isShown: true,
-    },
-    TAGS: {
-        headerName: 'Tags',
-        isShown: true,
-    },
-    AMI: {
-        headerName: 'AMI',
-        isShown: false,
-    },
-    KILL_SCRIPTS: {
-        headerName: 'Kill Cmd',
-        isShown: false,
-    }
+const WHAT_NEED_TO_SHOWN_ON_TABLE = {
+    OBJECT_ID: { headerName: 'AWS Object ID', isShown: true},
+    REGION: { headerName: 'Region', isShown: true },
+    AWS_CONSOLE: { headerName: 'AWS Console', isShown: true },
+    TAGS: { headerName: 'Tags', isShown: true },
+    AMI: { headerName: 'AMI', isShown: false },
+    KILL_SCRIPTS: { headerName: 'Kill Cmd', isShown: false }
 };
 
-const VARIABLES = {
-    NO_OWNER_EMAIL,
-    OWNER_TAG,
-    AUDIT_NAME,
-    ARE_KILL_SCRIPTS_SHOWN,
-    EC2_LOGIC,
-    EXPECTED_TAGS,
-    WHAT_NEED_TO_SHOWN,
-    ALLOW_EMPTY,
-    SEND_ON
-};
+const VARIABLES = { NO_OWNER_EMAIL, OWNER_TAG, AUDIT_NAME,
+    WHAT_NEED_TO_SHOWN_ON_TABLE, ALLOW_EMPTY, SEND_ON,
+    undefined, undefined, SHOWN_NOT_SORTED_VIOLATIONS_COUNTER};
 
 const CloudCoreoJSRunner = require('cloudcoreo-jsrunner-commons');
-const AuditCloudTrail = new CloudCoreoJSRunner(JSON, VARIABLES);
-const notifiers = AuditCloudTrail.getNotifiers();
+const AuditCLOUDTRAIL = new CloudCoreoJSRunner(JSON_INPUT, VARIABLES, TABLES);
+const notifiers = AuditCLOUDTRAIL.getNotifiers();
 callback(notifiers);
 EOH
 end
@@ -250,7 +339,7 @@ let numberOfViolations = 0;
 for (var entry=0; entry < json_input.length; entry++) {
     if (json_input[entry]['endpoint']['to'].length) {
         numberOfViolations += parseInt(json_input[entry]['num_violations']);
-        emailText += "recipient: " + json_input[entry]['endpoint']['to'] + " - " + "nViolations: " + json_input[entry]['num_violations'] + "\\n";
+        emailText += "recipient: " + json_input[entry]['endpoint']['to'] + " - " + "Violations: " + json_input[entry]['num_violations'] + "\\n";
     }
 }
 
