@@ -6,6 +6,7 @@ variables:
         default:
             - cloudtrail-service-disabled
             - cloudtrail-trail-with-global
+            - cloudtrail-inventory
     AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY:
         description: "Would you like to receive empty reports? Options - true / false. Default is false."
         required: true
