@@ -1,5 +1,3 @@
-
-
 coreo_aws_advisor_alert "cloudtrail-inventory" do
   action :define
   service :cloudtrail
