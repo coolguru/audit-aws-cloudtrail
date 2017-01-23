@@ -278,7 +278,7 @@ coreo_uni_util_jsrunner "tags-to-notifiers-array" do
   packages([
         {
           :name => "cloudcoreo-jsrunner-commons",
-          :version => "1.6.0"
+          :version => "1.6.4"
         }       ])
   json_input '{ "composite name":"PLAN::stack_name",
                 "plan name":"PLAN::name",
