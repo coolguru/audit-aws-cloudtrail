@@ -36,7 +36,7 @@ coreo_aws_advisor_alert "cloudtrail-service-disabled" do
   id_map "stack.current_region"
 end
 
-coreo_aws_advisor_alert "no-global-trails" do
+coreo_aws_advisor_alert "cloudtrail-no-global-trails" do
   action :define
   service :cloudtrail
   category "jsrunner"
@@ -100,7 +100,6 @@ regionArray.forEach(region=> {
     createRegionStr+= region + ' ';
 });
 
-
 var result = {};
 result['composite name'] = json_input['composite name'];
 result['plan name'] = json_input['plan name'];
@@ -118,6 +117,7 @@ for (var key in json_input['violations']) {
     }
   }
 }
+
 var noGlobalsAlert = {};
 if (nRegionsWithGlobal == 0) {
   regionArray.forEach(region => {
@@ -134,14 +134,14 @@ if (nRegionsWithGlobal == 0) {
     };
     noGlobalsAlert =
             { violations:
-              { 'no-global-trails':
+              { 'cloudtrail-no-global-trails':
               noGlobalsMetadata
               },
               tags: []
             };
     var key = 'selected regions';
     if (result['violations'][region]) {
-        result['violations'][region]['violations']['no-global-trails'] = noGlobalsMetadata;
+        result['violations'][region]['violations']['cloudtrail-no-global-trails'] = noGlobalsMetadata;
     } else {
         result['violations'][region] = noGlobalsAlert;
     }
@@ -154,14 +154,12 @@ callback(result);
   EOH
 end
 
-coreo_uni_util_variables "update-advisor-output" do
+coreo_uni_util_variables "cloudtrail-update-advisor-output" do
   action :set
   variables([
        {'COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return.violations'}
       ])
 end
-
-
 
 coreo_uni_util_jsrunner "jsrunner-process-suppression-cloudtrail" do
   action :run
@@ -283,7 +281,7 @@ coreo_uni_util_notify "advise-cloudtrail-json" do
 end
 
 ## Create Notifiers
-coreo_uni_util_jsrunner "tags-to-notifiers-array" do
+coreo_uni_util_jsrunner "cloudtrail-tags-to-notifiers-array" do
   action :run
   data_type "json"
   packages([
@@ -327,10 +325,10 @@ EOH
 end
 
 ## Create rollup String
-coreo_uni_util_jsrunner "tags-rollup" do
+coreo_uni_util_jsrunner "cloudtrail-tags-rollup" do
   action :run
   data_type "text"
-  json_input 'COMPOSITE::coreo_uni_util_jsrunner.tags-to-notifiers-array.return'
+  json_input 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-to-notifiers-array.return'
   function <<-EOH
 var rollup_string = "";
 let rollup = '';
@@ -355,7 +353,7 @@ end
 ## Send Notifiers
 coreo_uni_util_notify "advise-cloudtrail-to-tag-values" do
   action :${AUDIT_AWS_CLOUDTRAIL_HTML_REPORT}
-  notifiers 'COMPOSITE::coreo_uni_util_jsrunner.tags-to-notifiers-array.return'
+  notifiers 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-to-notifiers-array.return'
 end
 
 coreo_uni_util_notify "advise-cloudtrail-rollup" do
@@ -366,7 +364,7 @@ coreo_uni_util_notify "advise-cloudtrail-rollup" do
   payload '
 composite name: PLAN::stack_name
 plan name: PLAN::name
-COMPOSITE::coreo_uni_util_jsrunner.tags-rollup.return
+COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-rollup.return
   '
   payload_type 'text'
   endpoint ({
