@@ -1,9 +1,11 @@
-
+###########################################
+# User Visible Rule Definitions
+###########################################
 
 coreo_aws_advisor_alert "cloudtrail-inventory" do
   action :define
   service :cloudtrail
-  # link "http://kb.cloudcoreo.com/mydoc_elb-inventory.html"
+  # link "http://kb.cloudcoreo.com/mydoc-inventory.html"
   include_violations_in_count false
   display_name "ELB Object Inventory"
   description "This rule performs an inventory on all trails in the target AWS account."
@@ -34,6 +36,23 @@ coreo_aws_advisor_alert "cloudtrail-service-disabled" do
   id_map "stack.current_region"
 end
 
+coreo_aws_advisor_alert "no-global-trails" do
+  action :define
+  service :cloudtrail
+  category "jsrunner"
+  suggested_action "The metadata for this definition is defined in the jsrunner below. Do not put metadata here."
+  level "jsrunner"
+  objectives [""]
+  audit_objects [""]
+  operators [""]
+  alert_when [true]
+  id_map ""
+end
+
+###########################################
+# System-Defined (Internal) Rule Definitions
+###########################################
+
 coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
   action :define
   service :cloudtrail
@@ -51,18 +70,10 @@ coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
   id_map "stack.current_region"
 end
 
-coreo_aws_advisor_alert "no-global-trails" do
-  action :define
-  service :cloudtrail
-  category "jsrunner"
-  suggested_action "The metadata for this definition is defined in the jsrunner below. Do not put metadata here."
-  level "jsrunner"
-  objectives [""]
-  audit_objects [""]
-  operators [""]
-  alert_when [true]
-  id_map ""
-end
+###########################################
+# Compsite-Internal Resources follow until end
+#   (Resources used by the system for execution and display processing)
+###########################################
 
 coreo_aws_advisor_cloudtrail "advise-cloudtrail" do
   action :advise
