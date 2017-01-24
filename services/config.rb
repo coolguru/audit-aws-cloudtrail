@@ -150,8 +150,6 @@ if (nRegionsWithGlobal == 0) {
 }
 
 result['number_of_violations'] = nViolations;
-
-coreoExport('violations', JSON.stringify(result['violations']));
 callback(result);
   EOH
 end
@@ -159,7 +157,7 @@ end
 coreo_uni_util_variables "update-advisor-output" do
   action :set
   variables([
-       {'COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return.violations'}
+       {'COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'}
       ])
 end
 
