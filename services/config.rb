@@ -150,6 +150,8 @@ if (nRegionsWithGlobal == 0) {
 }
 
 result['number_of_violations'] = nViolations;
+
+coreoExport('violations', JSON.stringify(result['violations']));
 callback(result);
   EOH
 end
