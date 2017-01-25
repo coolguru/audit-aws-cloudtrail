@@ -14,8 +14,7 @@ This repo is designed to work with CloudCoreo. It will monitor CloudTrail agains
 
 ## Required variables with no default
 
-### `AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT`:
-  * description: Enter the email address(es) that will receive notifications. If more than one, separate each with a comma.
+**None**
 
 
 ## Required variables with default
@@ -33,7 +32,7 @@ This repo is designed to work with CloudCoreo. It will monitor CloudTrail agains
   * default: change
 
 ### `AUDIT_AWS_CLOUDTRAIL_REGIONS`:
-  * description: List of AWS regions to check. Default is us-east-1,us-west-1,us-west-2.
+  * description: List of AWS regions to check. Default is us-east-1,us-east-2,us-west-1,us-west-2,eu-west-1.
   * default: us-east-1, us-east-2, us-west-1, us-west-2, eu-west-1
 
 ### `AUDIT_AWS_CLOUDTRAIL_ROLLUP_REPORT`:
@@ -41,8 +40,8 @@ This repo is designed to work with CloudCoreo. It will monitor CloudTrail agains
   * default: nothing
 
 ### `AUDIT_AWS_CLOUDTRAIL_HTML_REPORT`:
-  * description: Would you like to send a full Cloudtrail report? This is an email that details any violations found and includes a list of the violating cloud objects. Options - notify / nothing. Default is notify.
-  * default: notify
+  * description: Would you like to send a full Cloudtrail report? This is an email that details any violations found and includes a list of the violating cloud objects. Options - notify / nothing. Default is nothing.
+  * default: nothing
 
 
 ## Optional variables with default
@@ -54,7 +53,8 @@ This repo is designed to work with CloudCoreo. It will monitor CloudTrail agains
 
 ## Optional variables with no default
 
-**None**
+### `AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT`:
+  * description: Enter the email address(es) that will receive notifications. If more than one, separate each with a comma.
 
 ## Tags
 1. Audit
