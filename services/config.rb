@@ -150,7 +150,7 @@ if (nRegionsWithGlobal == 0) {
 }
 
 result['number_of_violations'] = nViolations;
-callback(result['violations']['violations']);
+callback(result['violations']);
   EOH
 end
 
