@@ -124,6 +124,7 @@ if (nRegionsWithGlobal == 0) {
     nViolations++;
     noGlobalsMetadata =
     {
+        'service': 'cloudtrail',
         'link' : 'http://kb.cloudcoreo.com/mydoc_cloudtrail-trail-with-global.html',
         'display_name': 'Cloudtrail global logging is disabled',
         'description': 'CloudTrail global service logging is not enabled for the selected regions.',
@@ -157,11 +158,9 @@ end
 coreo_uni_util_variables "update-advisor-output" do
   action :set
   variables([
-       {'COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'}
-      ])
+                {'COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'}
+            ])
 end
-
-
 
 coreo_uni_util_jsrunner "jsrunner-process-suppression-cloudtrail" do
   action :run
@@ -247,6 +246,13 @@ coreo_uni_util_jsrunner "jsrunner-process-suppression-cloudtrail" do
   
   callback(result);
   EOH
+end
+
+coreo_uni_util_variables "update-advisor-output" do
+  action :set
+  variables([
+                {'COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.jsrunner-process-suppression-cloudtrail.return'}
+            ])
 end
 
 coreo_uni_util_jsrunner "jsrunner-process-table-cloudtrail" do
