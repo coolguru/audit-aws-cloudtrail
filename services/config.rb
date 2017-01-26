@@ -244,7 +244,7 @@ coreo_uni_util_jsrunner "jsrunner-process-suppression-cloudtrail" do
   }
   var rtn = result;
   
-  callback(result);
+callback(result['violations']);
   EOH
 end
 
