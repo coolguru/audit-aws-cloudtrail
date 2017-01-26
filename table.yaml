@@ -1,9 +1,9 @@
 cloudtrail-service-disabled:
-  "AWS Object ID": "__OBJECT__~https://console.aws.amazon.com/cloudtrail/home?region=+__OBJECT__.violations.__RULE__.region+#"
+  "AWS CloudTrail Console": "Console~https://console.aws.amazon.com/cloudtrail/home?region=+__OBJECT__.violations.__RULE__.region+#"
   "AWS Region": "+__OBJECT__.violations.__RULE__.region+"
   "AWS Tags": "__TAGS__"
 no-global-trails:
-  "AWS Object ID": "__OBJECT__~https://console.aws.amazon.com/cloudtrail/home?region=+__OBJECT__.violations.__RULE__.region+#"
+  "AWS CloudTrail Console": "Console~https://console.aws.amazon.com/cloudtrail/home?region=+__OBJECT__.violations.__RULE__.region+#"
   "AWS Region": "+__OBJECT__.violations.__RULE__.region+"
   "AWS Tags": "__TAGS__"
 cloudtrail-inventory:
@@ -12,4 +12,5 @@ cloudtrail-inventory:
   "Multi-region Trail": "+__OBJECT__.violations.__RULE__.violating_object.0.object.is_multi_region_trail+"
   "AWS Region": "+__OBJECT__.violations.__RULE__.region+"
   "AWS Tags": "__TAGS__"
-  
+
+# CloudTrail tags are not coming out of the engine currently so can't ask for them until that is fixed.
