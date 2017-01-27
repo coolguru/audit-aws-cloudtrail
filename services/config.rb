@@ -1,9 +1,11 @@
-
+###########################################
+# User Visible Rule Definitions
+###########################################
 
 coreo_aws_advisor_alert "cloudtrail-inventory" do
   action :define
   service :cloudtrail
-  # link "http://kb.cloudcoreo.com/mydoc_elb-inventory.html"
+  # link "http://kb.cloudcoreo.com/mydoc-inventory.html"
   include_violations_in_count false
   display_name "ELB Object Inventory"
   description "This rule performs an inventory on all trails in the target AWS account."
@@ -34,6 +36,23 @@ coreo_aws_advisor_alert "cloudtrail-service-disabled" do
   id_map "stack.current_region"
 end
 
+coreo_aws_advisor_alert "no-global-trails" do
+  action :define
+  service :cloudtrail
+  category "jsrunner"
+  suggested_action "The metadata for this definition is defined in the jsrunner below. Do not put metadata here."
+  level "jsrunner"
+  objectives [""]
+  audit_objects [""]
+  operators [""]
+  alert_when [true]
+  id_map ""
+end
+
+###########################################
+# System-Defined (Internal) Rule Definitions
+###########################################
+
 coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
   action :define
   service :cloudtrail
@@ -51,18 +70,10 @@ coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
   id_map "stack.current_region"
 end
 
-coreo_aws_advisor_alert "no-global-trails" do
-  action :define
-  service :cloudtrail
-  category "jsrunner"
-  suggested_action "The metadata for this definition is defined in the jsrunner below. Do not put metadata here."
-  level "jsrunner"
-  objectives [""]
-  audit_objects [""]
-  operators [""]
-  alert_when [true]
-  id_map ""
-end
+###########################################
+# Compsite-Internal Resources follow until end
+#   (Resources used by the system for execution and display processing)
+###########################################
 
 coreo_aws_advisor_cloudtrail "advise-cloudtrail" do
   action :advise
@@ -113,6 +124,7 @@ if (nRegionsWithGlobal == 0) {
     nViolations++;
     noGlobalsMetadata =
     {
+        'service': 'cloudtrail',
         'link' : 'http://kb.cloudcoreo.com/mydoc_cloudtrail-trail-with-global.html',
         'display_name': 'Cloudtrail global logging is disabled',
         'description': 'CloudTrail global service logging is not enabled for the selected regions.',
@@ -139,23 +151,23 @@ if (nRegionsWithGlobal == 0) {
 }
 
 result['number_of_violations'] = nViolations;
-callback(result);
+callback(result['violations']);
   EOH
 end
 
 coreo_uni_util_variables "update-advisor-output" do
   action :set
   variables([
-       {'COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return.violations'}
-      ])
+                {'COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'}
+            ])
 end
-
-
 
 coreo_uni_util_jsrunner "jsrunner-process-suppression-cloudtrail" do
   action :run
   provide_composite_access true
-  json_input 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'
+  json_input '{ "composite name":"PLAN::stack_name",
+                "plan name":"PLAN::name",
+                "violations": COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return}'
   packages([
                {
                    :name => "js-yaml",
@@ -232,7 +244,7 @@ coreo_uni_util_jsrunner "jsrunner-process-suppression-cloudtrail" do
   }
   var rtn = result;
   
-  callback(result);
+callback(result);
   EOH
 end
 
@@ -258,28 +270,15 @@ coreo_uni_util_jsrunner "jsrunner-process-table-cloudtrail" do
   EOH
 end
 
-
-coreo_uni_util_notify "advise-cloudtrail-json" do
-  action :nothing
-  type 'email'
-  allow_empty ${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}
-  send_on '${AUDIT_AWS_CLOUDTRAIL_SEND_ON}'
-  payload 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'
-  payload_type "json"
-  endpoint ({
-      :to => '${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}', :subject => 'CloudCoreo cloudtrail advisor alerts on PLAN::stack_name :: PLAN::name'
-  }) 
-end
-
 ## Create Notifiers
-coreo_uni_util_jsrunner "tags-to-notifiers-array" do
+coreo_uni_util_jsrunner "cloudtrail-tags-to-notifiers-array" do
   action :run
   data_type "json"
   packages([
-        {
-          :name => "cloudcoreo-jsrunner-commons",
-          :version => "1.6.0"
-        }       ])
+               {
+                   :name => "cloudcoreo-jsrunner-commons",
+                   :version => "1.6.8"
+               }       ])
   json_input '{ "composite name":"PLAN::stack_name",
                 "plan name":"PLAN::name",
                 "table": COMPOSITE::coreo_uni_util_jsrunner.jsrunner-process-table-cloudtrail.return,
@@ -291,35 +290,24 @@ const NO_OWNER_EMAIL = "${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}";
 const OWNER_TAG = "${AUDIT_AWS_CLOUDTRAIL_OWNER_TAG}";
 const ALLOW_EMPTY = "${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}";
 const SEND_ON = "${AUDIT_AWS_CLOUDTRAIL_SEND_ON}";
-const AUDIT_NAME = 'cloudtrail';
-const TABLES = json_input['table'];
 const SHOWN_NOT_SORTED_VIOLATIONS_COUNTER = false;
 
-const WHAT_NEED_TO_SHOWN_ON_TABLE = {
-    OBJECT_ID: { headerName: 'AWS Object ID', isShown: true},
-    REGION: { headerName: 'Region', isShown: true },
-    AWS_CONSOLE: { headerName: 'AWS Console', isShown: true },
-    TAGS: { headerName: 'Tags', isShown: true },
-    AMI: { headerName: 'AMI', isShown: false },
-    KILL_SCRIPTS: { headerName: 'Kill Cmd', isShown: false }
-};
 
-const VARIABLES = { NO_OWNER_EMAIL, OWNER_TAG, AUDIT_NAME,
-    WHAT_NEED_TO_SHOWN_ON_TABLE, ALLOW_EMPTY, SEND_ON,
-    undefined, undefined, SHOWN_NOT_SORTED_VIOLATIONS_COUNTER};
+const VARIABLES = { NO_OWNER_EMAIL, OWNER_TAG, 
+  ALLOW_EMPTY, SEND_ON, SHOWN_NOT_SORTED_VIOLATIONS_COUNTER};
 
 const CloudCoreoJSRunner = require('cloudcoreo-jsrunner-commons');
-const AuditCLOUDTRAIL = new CloudCoreoJSRunner(JSON_INPUT, VARIABLES, TABLES);
+const AuditCLOUDTRAIL = new CloudCoreoJSRunner(JSON_INPUT, VARIABLES);
 const notifiers = AuditCLOUDTRAIL.getNotifiers();
 callback(notifiers);
-EOH
+  EOH
 end
 
 ## Create rollup String
 coreo_uni_util_jsrunner "tags-rollup" do
   action :run
   data_type "text"
-  json_input 'COMPOSITE::coreo_uni_util_jsrunner.tags-to-notifiers-array.return'
+  json_input 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-to-notifiers-array.return'
   function <<-EOH
 var rollup_string = "";
 let rollup = '';
@@ -338,13 +326,13 @@ rollup += emailText;
 
 rollup_string = rollup;
 callback(rollup_string);
-EOH
+  EOH
 end
 
 ## Send Notifiers
 coreo_uni_util_notify "advise-cloudtrail-to-tag-values" do
   action :${AUDIT_AWS_CLOUDTRAIL_HTML_REPORT}
-  notifiers 'COMPOSITE::coreo_uni_util_jsrunner.tags-to-notifiers-array.return'
+  notifiers 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-to-notifiers-array.return'
 end
 
 coreo_uni_util_notify "advise-cloudtrail-rollup" do
