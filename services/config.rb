@@ -1,6 +1,3 @@
-###########################################
-# User Visible Rule Definitions
-###########################################
 
 coreo_aws_advisor_alert "cloudtrail-inventory" do
   action :define
@@ -49,10 +46,6 @@ coreo_aws_advisor_alert "no-global-trails" do
   id_map ""
 end
 
-###########################################
-# System-Defined (Internal) Rule Definitions
-###########################################
-
 coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
   action :define
   service :cloudtrail
@@ -69,11 +62,6 @@ coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
   alert_when [true]
   id_map "stack.current_region"
 end
-
-###########################################
-# Compsite-Internal Resources follow until end
-#   (Resources used by the system for execution and display processing)
-###########################################
 
 coreo_aws_advisor_cloudtrail "advise-cloudtrail" do
   action :advise
@@ -155,7 +143,7 @@ callback(result['violations']);
   EOH
 end
 
-coreo_uni_util_variables "update-advisor-output" do
+coreo_uni_util_variables "cloudtrail-update-advisor-output" do
   action :set
   variables([
                 {'COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'}
@@ -248,8 +236,7 @@ callback(result);
   EOH
 end
 
-
-coreo_uni_util_variables "update-advisor-output" do
+coreo_uni_util_variables "cloudtrail-suppression-update-advisor-output" do
   action :set
   variables([
                 {'COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.jsrunner-process-suppression-cloudtrail.return'}
@@ -278,7 +265,6 @@ coreo_uni_util_jsrunner "jsrunner-process-table-cloudtrail" do
   EOH
 end
 
-## Create Notifiers
 coreo_uni_util_jsrunner "cloudtrail-tags-to-notifiers-array" do
   action :run
   data_type "json"
@@ -311,7 +297,6 @@ callback(notifiers);
 EOH
 end
 
-## Create rollup String
 coreo_uni_util_jsrunner "cloudtrail-tags-rollup" do
   action :run
   data_type "text"
@@ -337,7 +322,6 @@ callback(rollup_string);
 EOH
 end
 
-## Send Notifiers
 coreo_uni_util_notify "advise-cloudtrail-to-tag-values" do
   action :${AUDIT_AWS_CLOUDTRAIL_HTML_REPORT}
   notifiers 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-to-notifiers-array.return'
