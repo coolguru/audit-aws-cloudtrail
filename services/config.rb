@@ -248,6 +248,14 @@ callback(result);
   EOH
 end
 
+
+coreo_uni_util_variables "update-advisor-output" do
+  action :set
+  variables([
+                {'COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.jsrunner-process-suppression-cloudtrail.return'}
+            ])
+end
+
 coreo_uni_util_jsrunner "jsrunner-process-table-cloudtrail" do
   action :run
   provide_composite_access true
