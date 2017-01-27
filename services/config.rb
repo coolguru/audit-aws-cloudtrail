@@ -317,7 +317,7 @@ EOH
 end
 
 ## Create rollup String
-coreo_uni_util_jsrunner "tags-rollup" do
+coreo_uni_util_jsrunner "cloudtrail-tags-rollup" do
   action :run
   data_type "text"
   json_input 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-to-notifiers-array.return'
@@ -356,7 +356,7 @@ coreo_uni_util_notify "advise-cloudtrail-rollup" do
   payload '
 composite name: PLAN::stack_name
 plan name: PLAN::name
-COMPOSITE::coreo_uni_util_jsrunner.tags-rollup.return
+COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-rollup.return
   '
   payload_type 'text'
   endpoint ({
