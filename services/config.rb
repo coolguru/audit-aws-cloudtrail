@@ -111,6 +111,7 @@ for(var region in json_input['violations']) {
 }
 var noGlobalsAlert = {};
 if (nRegionsWithGlobal == 0) {
+    console.log(regionArray);
     regionArray.forEach(region => {
         nViolations++;
         noGlobalsMetadata =
@@ -132,11 +133,15 @@ if (nRegionsWithGlobal == 0) {
                 tags: []
             };
         var key = 'selected regions';
-        if (result['violations'][region]) {
-            result['violations'][region]['violations']['no-global-trails'] = noGlobalsMetadata;
-        } else {
-            result['violations'][region] = noGlobalsAlert;
-        }
+        console.log(result['violations'][region]);
+        const regionKeys = Object.keys(result['violatins']['region']);
+        regionKeys.forEach(regionKey => {
+            if (result['violations'][regionKey][region]) {
+                result['violations'][regionKey][region]['violations']['no-global-trails'] = noGlobalsMetadata;
+            } else {
+                result['violations'][regionKey][region] = noGlobalsAlert;
+            }
+        });
     });
 
 }
