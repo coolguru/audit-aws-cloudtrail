@@ -69,9 +69,7 @@ end
 
 coreo_aws_advisor_cloudtrail "advise-cloudtrail" do
   action :advise
-  alerts
-    ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}
-    - cloudtrail-trail-with-global
+  alerts ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}
   regions ${AUDIT_AWS_CLOUDTRAIL_REGIONS}
 end
 
