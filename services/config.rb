@@ -282,7 +282,7 @@ coreo_uni_util_jsrunner "jsrunner-process-table-cloudtrail" do
 end
 
 coreo_uni_util_notify "advise-cloudtrail-json" do
-  action :notify
+  action :nothing
   type 'email'
   allow_empty ${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}
   send_on '${AUDIT_AWS_CLOUDTRAIL_SEND_ON}'
