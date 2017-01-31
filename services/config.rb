@@ -1,6 +1,3 @@
-###########################################
-# User Visible Rule Definitions
-###########################################
 
 coreo_aws_advisor_alert "cloudtrail-inventory" do
   action :define
@@ -49,10 +46,6 @@ coreo_aws_advisor_alert "cloudtrail-no-global-trails" do
   id_map ""
 end
 
-###########################################
-# System-Defined (Internal) Rule Definitions
-###########################################
-
 coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
   action :define
   service :cloudtrail
@@ -69,11 +62,6 @@ coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
   alert_when [true]
   id_map "stack.current_region"
 end
-
-###########################################
-# Compsite-Internal Resources follow until end
-#   (Resources used by the system for execution and display processing)
-###########################################
 
 coreo_aws_advisor_cloudtrail "advise-cloudtrail" do
   action :advise
@@ -267,20 +255,6 @@ coreo_uni_util_jsrunner "jsrunner-process-table-cloudtrail" do
   EOH
 end
 
-
-coreo_uni_util_notify "advise-cloudtrail-json" do
-  action :nothing
-  type 'email'
-  allow_empty ${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}
-  send_on '${AUDIT_AWS_CLOUDTRAIL_SEND_ON}'
-  payload 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'
-  payload_type "json"
-  endpoint ({
-      :to => '${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}', :subject => 'CloudCoreo cloudtrail advisor alerts on PLAN::stack_name :: PLAN::name'
-  }) 
-end
-
-## Create Notifiers
 coreo_uni_util_jsrunner "cloudtrail-tags-to-notifiers-array" do
   action :run
   data_type "json"
@@ -324,7 +298,6 @@ callback(notifiers);
 EOH
 end
 
-## Create rollup String
 coreo_uni_util_jsrunner "cloudtrail-tags-rollup" do
   action :run
   data_type "text"
@@ -350,7 +323,6 @@ callback(rollup_string);
 EOH
 end
 
-## Send Notifiers
 coreo_uni_util_notify "advise-cloudtrail-to-tag-values" do
   action :${AUDIT_AWS_CLOUDTRAIL_HTML_REPORT}
   notifiers 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-to-notifiers-array.return'
