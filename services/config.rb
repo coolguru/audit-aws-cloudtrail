@@ -38,9 +38,9 @@ end
 coreo_aws_advisor_alert "cloudtrail-no-global-trails" do
   action :define
   service :user
-  category "jsrunner"
+  category "Audit"
   suggested_action "The metadata for this definition is defined in the jsrunner below. Do not put metadata here."
-  level "jsrunner"
+  level "Warning"
   objectives [""]
   audit_objects [""]
   operators [""]
@@ -67,9 +67,23 @@ coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
   id_map "stack.current_region"
 end
 
+coreo_uni_util_jsrunner "cloudtrail-form-advisor-rule-list" do
+  action :run
+  json_input '{}'
+  function <<-EOH
+    var_user_specified_rules = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
+    var_system_defined_rules = "cloudtrail-trail-with-global";
+    var_all_rules = var_user_specified_rules;
+    var var_name = 'rule_list_for_advisor';
+    coreoExport(`${var_name}`, var_all_rules);
+    callback();
+  EOH
+end
+
 coreo_aws_advisor_cloudtrail "advise-cloudtrail" do
   action :advise
-  alerts ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}
+  #alerts ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}
+  alerts COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-form-advisor-rule-list.rule_list_for_advisor
   regions ${AUDIT_AWS_CLOUDTRAIL_REGIONS}
 end
 
