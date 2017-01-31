@@ -4,7 +4,7 @@ coreo_aws_advisor_alert "cloudtrail-inventory" do
   service :cloudtrail
   link "http://kb.cloudcoreo.com/mydoc-inventory.html"
   include_violations_in_count false
-  display_name "ELB Object Inventory"
+  display_name "Cloudtrail Inventory"
   description "This rule performs an inventory on all trails in the target AWS account."
   category "Inventory"
   suggested_action "None."
