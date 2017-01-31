@@ -1,6 +1,4 @@
 
-# user-visible definitions
-
 coreo_aws_advisor_alert "cloudtrail-inventory" do
   action :define
   service :cloudtrail
@@ -47,8 +45,6 @@ coreo_aws_advisor_alert "cloudtrail-no-global-trails" do
   alert_when [true]
   id_map ""
 end
-
-# internal definitions
 
 coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
   action :define
@@ -105,7 +101,6 @@ let createRegionStr = '';
 regionArray.forEach(region=> {
     createRegionStr+= region + ' ';
 });
-
 var result = {};
 result['composite name'] = json_input['composite name'];
 result['plan name'] = json_input['plan name'];
@@ -126,7 +121,6 @@ for(var region in json_input['violations']) {
         }
     }
 }
-
 var noGlobalsAlert = {};
 if (nRegionsWithGlobal == 0) {
     console.log(regionArray);
@@ -145,19 +139,21 @@ if (nRegionsWithGlobal == 0) {
             };
         noGlobalsAlert =
             { violations:
-                { 'cloudtrail-no-global-trails':
+                { 'no-global-trails':
                 noGlobalsMetadata
                 },
                 tags: []
             };
         var key = 'selected regions';
         console.log(result['violations'][region]);
-        const regionKeys = Object.keys(result['violations']['region']);
+        const regionKeys = Object.keys(result['violations'][region]);
         regionKeys.forEach(regionKey => {
-            if (result['violations'][regionKey][region]) {
-                result['violations'][regionKey][region]['violations']['cloudtrail-no-global-trails'] = noGlobalsMetadata;
-            } else {
-                result['violations'][regionKey][region] = noGlobalsAlert;
+            if(result['violations'][regionKey]) {
+                if (result['violations'][regionKey][region]) {
+                    result['violations'][regionKey][region]['violations']['no-global-trails'] = noGlobalsMetadata;
+                } else {
+                    result['violations'][regionKey][region] = noGlobalsAlert;
+                }
             }
         });
     });
@@ -295,20 +291,6 @@ coreo_uni_util_jsrunner "jsrunner-process-table-cloudtrail" do
   EOH
 end
 
-coreo_uni_util_notify "advise-cloudtrail-json" do
-  action :nothing
-  type 'email'
-  allow_empty ${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}
-  send_on '${AUDIT_AWS_CLOUDTRAIL_SEND_ON}'
-  payload 'COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report'
-  payload_type "json"
-  endpoint ({
-      :to => '${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}', :subject => 'CloudCoreo cloudtrail advisor alerts on PLAN::stack_name :: PLAN::name'
-  }) 
-end
-
-## Create Notifiers
-
 coreo_uni_util_jsrunner "cloudtrail-tags-to-notifiers-array" do
   action :run
   data_type "json"
@@ -340,8 +322,6 @@ const notifiers = AuditCLOUDTRAIL.getNotifiers();
 callback(notifiers);
 EOH
 end
-
-## Create rollup String
 
 coreo_uni_util_jsrunner "cloudtrail-tags-rollup" do
   action :run
