@@ -78,7 +78,7 @@ end
 coreo_aws_advisor_cloudtrail "advise-cloudtrail" do
   action :advise
   #alerts ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}
-  alerts COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-form-advisor-rule-list.rule_list_for_advisor
+  alerts ${COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-form-advisor-rule-list.rule_list_for_advisor}
   regions ${AUDIT_AWS_CLOUDTRAIL_REGIONS}
 end
 
