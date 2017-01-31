@@ -70,8 +70,7 @@ coreo_uni_util_jsrunner "cloudtrail-form-advisor-rule-list" do
     var_user_specified_rules = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
     var_system_defined_rules = "cloudtrail-trail-with-global";
     var_all_rules = var_user_specified_rules;
-    var var_name = 'rule_list_for_advisor';
-    coreoExport(`${var_name}`, var_all_rules);
+    coreoExport('rule_list_for_advisor', var_all_rules);
     callback();
   EOH
 end
