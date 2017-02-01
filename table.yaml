@@ -8,3 +8,5 @@ cloudtrail-inventory:
   "Multi-region Trail": "+__OBJECT__.violations.__RULE__.result_info.0.object.is_multi_region_trail+"
   "AWS Region": "+__OBJECT__.violations.__RULE__.region+"
   "AWS Tags": "__TAGS__"
+cloudtrail-no-global-trails:
+  "Region": "+__OBJECT__.violations.__RULE__.region+~https://console.aws.amazon.com/cloudtrail/home?region=+__OBJECT__.violations.__RULE__.region+#"
