@@ -4,7 +4,7 @@ coreo_aws_advisor_alert "cloudtrail-inventory" do
   service :cloudtrail
   link "http://kb.cloudcoreo.com/mydoc-inventory.html"
   include_violations_in_count false
-  display_name "ELB Object Inventory"
+  display_name "Cloudtrail Inventory"
   description "This rule performs an inventory on all trails in the target AWS account."
   category "Inventory"
   suggested_action "None."
@@ -36,9 +36,9 @@ end
 coreo_aws_advisor_alert "cloudtrail-no-global-trails" do
   action :define
   service :user
-  category "jsrunner"
+  category "Audit"
   suggested_action "The metadata for this definition is defined in the jsrunner below. Do not put metadata here."
-  level "jsrunner"
+  level "Warning"
   objectives [""]
   audit_objects [""]
   operators [""]
@@ -63,9 +63,21 @@ coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
   id_map "stack.current_region"
 end
 
+coreo_uni_util_jsrunner "cloudtrail-form-advisor-rule-list" do
+  action :run
+  json_input '{}'
+  function <<-EOH
+    var user_specified_rules = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
+    user_specified_rules = user_specified_rules.replace(/\\]/, ",'cloudtrail-trail-with-global']");
+    coreoExport('rule_list_for_advisor', user_specified_rules);
+    callback();
+  EOH
+end
+
 coreo_aws_advisor_cloudtrail "advise-cloudtrail" do
   action :advise
   alerts ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}
+  #alerts COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-form-advisor-rule-list.rule_list_for_advisor
   regions ${AUDIT_AWS_CLOUDTRAIL_REGIONS}
 end
 
@@ -283,7 +295,11 @@ coreo_uni_util_jsrunner "cloudtrail-tags-to-notifiers-array" do
   packages([
         {
           :name => "cloudcoreo-jsrunner-commons",
+<<<<<<< HEAD
           :version => "1.7.2"
+=======
+          :version => "1.7.1"
+>>>>>>> af34406967dba9448643e51ea175e442378e6cb5
         }       ])
   json_input '{ "composite name":"PLAN::stack_name",
                 "plan name":"PLAN::name",
