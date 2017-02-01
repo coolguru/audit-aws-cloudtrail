@@ -295,11 +295,7 @@ coreo_uni_util_jsrunner "cloudtrail-tags-to-notifiers-array" do
   packages([
         {
           :name => "cloudcoreo-jsrunner-commons",
-<<<<<<< HEAD
-          :version => "1.7.2"
-=======
-          :version => "1.7.1"
->>>>>>> af34406967dba9448643e51ea175e442378e6cb5
+          :version => "1.7.3"
         }       ])
   json_input '{ "composite name":"PLAN::stack_name",
                 "plan name":"PLAN::name",
