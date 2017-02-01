@@ -137,7 +137,7 @@ if (nRegionsWithGlobal == 0) {
             };
         noGlobalsAlert =
             { violations:
-                { 'no-global-trails':
+                { 'cloudtrail-no-global-trails':
                 noGlobalsMetadata
                 },
                 tags: []
@@ -148,7 +148,7 @@ if (nRegionsWithGlobal == 0) {
         regionKeys.forEach(regionKey => {
             if(result['violations'][regionKey]) {
                 if (result['violations'][regionKey][region]) {
-                    result['violations'][regionKey][region]['violations']['no-global-trails'] = noGlobalsMetadata;
+                    result['violations'][regionKey][region]['violations']['cloudtrail-no-global-trails'] = noGlobalsMetadata;
                 } else {
                     result['violations'][regionKey][region] = noGlobalsAlert;
                 }
