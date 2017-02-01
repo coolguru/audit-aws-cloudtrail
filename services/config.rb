@@ -281,8 +281,7 @@ coreo_uni_util_jsrunner "jsrunner-process-table-cloudtrail" do
     var yaml = require('js-yaml');
     try {
         var table = yaml.safeLoad(fs.readFileSync('./table.yaml', 'utf8'));
-    }catch(e) {
-  
+    } catch (e) {
     }
     coreoExport('table', JSON.stringify(table));
     callback(table);
