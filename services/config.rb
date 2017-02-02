@@ -1,5 +1,5 @@
 
-coreo_aws_advisor_alert "cloudtrail-inventory" do
+coreo_aws_rule "cloudtrail-inventory" do
   action :define
   service :cloudtrail
   link "http://kb.cloudcoreo.com/mydoc-inventory.html"
@@ -12,11 +12,11 @@ coreo_aws_advisor_alert "cloudtrail-inventory" do
   objectives ["trails"]
   audit_objects ["object.trail_list.name"]
   operators ["=~"]
-  alert_when [//]
+  raise_when [//]
   id_map "object.trail_list.name"
 end
 
-coreo_aws_advisor_alert "cloudtrail-service-disabled" do
+coreo_aws_rule "cloudtrail-service-disabled" do
   action :define
   service :cloudtrail
   link "http://kb.cloudcoreo.com/mydoc_cloudtrail-service-disabled.html"
@@ -29,11 +29,11 @@ coreo_aws_advisor_alert "cloudtrail-service-disabled" do
   formulas ["count"]
   audit_objects ["trail_list"]
   operators ["=="]
-  alert_when [0]
+  raise_when [0]
   id_map "stack.current_region"
 end
 
-coreo_aws_advisor_alert "cloudtrail-no-global-trails" do
+coreo_aws_rule "cloudtrail-no-global-trails" do
   action :define
   service :user
   category "Audit"
@@ -42,11 +42,11 @@ coreo_aws_advisor_alert "cloudtrail-no-global-trails" do
   objectives [""]
   audit_objects [""]
   operators [""]
-  alert_when [true]
+  raise_when [true]
   id_map ""
 end
 
-coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
+coreo_aws_rule "cloudtrail-trail-with-global" do
   action :define
   service :cloudtrail
   include_violations_in_count false
@@ -59,7 +59,7 @@ coreo_aws_advisor_alert "cloudtrail-trail-with-global" do
   objectives ["trails"]
   audit_objects ["trail_list.include_global_service_events"]
   operators ["=="]
-  alert_when [true]
+  raise_when [true]
   id_map "stack.current_region"
 end
 
@@ -74,9 +74,9 @@ coreo_uni_util_jsrunner "cloudtrail-form-advisor-rule-list" do
   EOH
 end
 
-coreo_aws_advisor_cloudtrail "advise-cloudtrail" do
-  action :advise
-  alerts ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}
+coreo_rule_runner_cloudtrail "advise-cloudtrail" do
+  action :run
+  rules ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}
   #alerts COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-form-advisor-rule-list.rule_list_for_advisor
   regions ${AUDIT_AWS_CLOUDTRAIL_REGIONS}
 end
@@ -85,10 +85,10 @@ coreo_uni_util_jsrunner "cloudtrail-aggregate" do
   action :run
   json_input '{"composite name":"PLAN::stack_name",
   "plan name":"PLAN::name",
-  "number_of_checks":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_checks",
-  "number_of_violations":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_violations",
-  "number_violations_ignored":"COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.number_ignored_violations",
-  "violations":COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report}'
+  "number_of_checks":"COMPOSITE::coreo_rule_runner_cloudtrail.advise-cloudtrail.number_checks",
+  "number_of_violations":"COMPOSITE::coreo_rule_runner_cloudtrail.advise-cloudtrail.number_violations",
+  "number_violations_ignored":"COMPOSITE::coreo_rule_runner_cloudtrail.advise-cloudtrail.number_ignored_violations",
+  "violations":COMPOSITE::coreo_rule_runner_cloudtrail.advise-cloudtrail.report}'
   function <<-EOH
 var_regions = "${AUDIT_AWS_CLOUDTRAIL_REGIONS}";
 
@@ -164,7 +164,7 @@ end
 coreo_uni_util_variables "cloudtrail-update-advisor-output" do
   action :set
   variables([
-                {'COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'}
+                {'COMPOSITE::coreo_rule_runner_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'}
             ])
 end
 
@@ -263,7 +263,7 @@ end
 coreo_uni_util_variables "cloudtrail-suppression-update-advisor-output" do
   action :set
   variables([
-                {'COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.jsrunner-process-suppression-cloudtrail.return'}
+                {'COMPOSITE::coreo_rule_runner_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.jsrunner-process-suppression-cloudtrail.return'}
             ])
 end
 
@@ -362,7 +362,7 @@ COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-rollup.return
   '
   payload_type 'text'
   endpoint ({
-      :to => '${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}', :subject => 'CloudCoreo cloudtrail advisor alerts on PLAN::stack_name :: PLAN::name'
+      :to => '${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}', :subject => 'CloudCoreo cloudtrail rule results on PLAN::stack_name :: PLAN::name'
   })
 end
 
