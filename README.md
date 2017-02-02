@@ -44,11 +44,7 @@ This repo is designed to work with CloudCoreo. It will monitor CloudTrail agains
 
 ### `AUDIT_AWS_CLOUDTRAIL_ALERT_LIST`:
   * description: Which alerts would you like to check for? Default is all Cloudtrail alerts.
-<<<<<<< HEAD
-  * default: cloudtrail-service-disabled, cloudtrail-no-global-trails, cloudtrail-inventory
-=======
-  * default: cloudtrail-service-disabled, cloudtrail-trail-with-global, cloudtrail-inventory
->>>>>>> master
+  * default: cloudtrail-service-disabled, cloudtrail-no-global-trails, cloudtrail-inventory, cloudtrail-trail-with-global
 
 ### `AUDIT_AWS_CLOUDTRAIL_OWNER_TAG`:
   * description: Enter an AWS tag whose value is an email address of the owner of the Cloudtrail object. (Optional)
