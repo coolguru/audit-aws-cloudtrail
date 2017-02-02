@@ -74,7 +74,7 @@ coreo_uni_util_jsrunner "cloudtrail-form-advisor-rule-list" do
   EOH
 end
 
-coreo_rule_runner_cloudtrail "advise-cloudtrail" do
+coreo_aws_rule_runner_cloudtrail "advise-cloudtrail" do
   action :run
   rules ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}
   #alerts COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-form-advisor-rule-list.rule_list_for_advisor
