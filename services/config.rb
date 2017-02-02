@@ -96,11 +96,6 @@ var_alerts = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
 let alertArrayJSON =  var_alerts;
 let alertArray = alertArrayJSON.replace(/'/g, '"');
 alertArray = JSON.parse(alertArray);
-let createAlertStr = '';
-alertArray.forEach(alert=> {
-    createAlertStr+= alert + ' ';
-});
-
 
 let regionArrayJSON =  var_regions;
 let regionArray = regionArrayJSON.replace(/'/g, '"');
