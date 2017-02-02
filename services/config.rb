@@ -33,11 +33,16 @@ coreo_aws_rule "cloudtrail-service-disabled" do
   id_map "stack.current_region"
 end
 
+# the jsrunner puts cloudtrail in for the service
+
 coreo_aws_rule "cloudtrail-no-global-trails" do
   action :define
   service :user
   category "Audit"
-  suggested_action "The metadata for this definition is defined in the jsrunner below. Do not put metadata here."
+  link "http://kb.cloudcoreo.com/mydoc_cloudtrail-trail-with-global.html"
+  display_name "Cloudtrail global logging is disabled"
+  suggested_action "Enable CloudTrail global service logging in at least one region"
+  description "CloudTrail global service logging is not enabled for the selected regions."
   level "Warning"
   objectives [""]
   audit_objects [""]
