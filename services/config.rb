@@ -68,7 +68,11 @@ coreo_uni_util_jsrunner "cloudtrail-form-advisor-rule-list" do
   json_input '{}'
   function <<-EOH
     var user_specified_rules = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
+<<<<<<< HEAD
     user_specified_rules = user_specified_rules.replace(/\\]/, ",'cloudtrail-trail-with-global']");
+=======
+    # user_specified_rules = user_specified_rules.replace(/\\]/, ",'cloudtrail-trail-with-global']");
+>>>>>>> parent of 4f6f15d... CON-254 slight variation on test
     coreoExport('rule_list_for_advisor', user_specified_rules);
     callback();
   EOH
