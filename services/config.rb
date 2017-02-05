@@ -9,6 +9,7 @@ coreo_aws_rule "cloudtrail-inventory" do
   category "Inventory"
   suggested_action "None."
   level "Informational"
+  meta_cis_id "99.999"
   objectives ["trails"]
   audit_objects ["object.trail_list.name"]
   operators ["=~"]
@@ -25,6 +26,7 @@ coreo_aws_rule "cloudtrail-service-disabled" do
   category "Audit"
   suggested_action "Enable CloudTrail logs for each region."
   level "Warning"
+  meta_cis_id "99.998"
   objectives ["trails"]
   formulas ["count"]
   audit_objects ["trail_list"]
@@ -44,6 +46,7 @@ coreo_aws_rule "cloudtrail-no-global-trails" do
   suggested_action "Enable CloudTrail global service logging in at least one region"
   description "CloudTrail global service logging is not enabled for the selected regions."
   level "Warning"
+  meta_cis_id "99.997"
   objectives [""]
   audit_objects [""]
   operators [""]
