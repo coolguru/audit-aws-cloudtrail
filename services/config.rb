@@ -144,13 +144,11 @@ if (nRegionsWithGlobal == 0) {
             };
         var key = 'selected regions';
         console.log(result['violations'][region]);
-
         if (result['violations'][region][region]) {
             result['violations'][region][region]['violations']['cloudtrail-no-global-trails'] = noGlobalsMetadata;
         } else {
             result['violations'][region][region] = noGlobalsAlert;
         }
-        
     });
 }
 result['number_of_violations'] = nViolations;
