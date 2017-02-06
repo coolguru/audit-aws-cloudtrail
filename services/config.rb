@@ -21,7 +21,7 @@ coreo_aws_rule "cloudtrail-service-disabled" do
   action :define
   service :cloudtrail
   link "http://kb.cloudcoreo.com/mydoc_cloudtrail-service-disabled.html"
-  display_name "Cloudtrail Service is disabled"
+  display_name "Cloudtrail Service is Disabled"
   description "CloudTrail logging is not enabled for this region. It should be enabled."
   category "Audit"
   suggested_action "Enable CloudTrail logs for each region."
@@ -42,7 +42,7 @@ coreo_aws_rule "cloudtrail-no-global-trails" do
   service :user
   category "Audit"
   link "http://kb.cloudcoreo.com/mydoc_cloudtrail-trail-with-global.html"
-  display_name "Cloudtrail global logging is disabled"
+  display_name "Cloudtrail Global Logging is Disabled"
   suggested_action "Enable CloudTrail global service logging in at least one region"
   description "CloudTrail global service logging is not enabled for the selected regions."
   level "Warning"
