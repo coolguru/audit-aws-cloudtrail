@@ -132,7 +132,6 @@ for(var region in json_input['violations']) {
         }
     }
 }
-<<<<<<< HEAD
 var noGlobalsAlert = {};
 if (nRegionsWithGlobal == 0) {
     console.log(regionArray);
