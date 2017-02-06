@@ -337,7 +337,7 @@ end
 coreo_uni_util_jsrunner "jsrunner-process-alert-list-cloudtrail" do
   action :run
   provide_composite_access true
-  json_input '{"violations":COMPOSITE::coreo_aws_advisor_cloudtrail.advise-cloudtrail.report}'
+  json_input '{"violations":COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.report}'
   packages([
                {
                    :name => "js-yaml",
