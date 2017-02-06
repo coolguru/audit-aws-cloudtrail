@@ -132,45 +132,37 @@ for(var region in json_input['violations']) {
         }
     }
 }
-
-if (alertArray.indexOf('cloudtrail-no-global-trails') >= 0) {
-  var noGlobalsAlert = {};
-  if (nRegionsWithGlobal == 0) {
-      console.log(regionArray);
-      regionArray.forEach(region => {
-          nViolations++;
-          noGlobalsMetadata =
-              {
-                  'service': 'cloudtrail',
-                  'link' : 'http://kb.cloudcoreo.com/mydoc_cloudtrail-trail-with-global.html',
-                  'display_name': 'Cloudtrail global logging is disabled',
-                  'description': 'CloudTrail global service logging is not enabled for the selected regions.',
-                  'category': 'Audit',
-                  'suggested_action': 'Enable CloudTrail global service logging in at least one region',
-                  'level': 'Warning',
-                  'region': region
-              };
-          noGlobalsAlert =
-              { violations:
-                  { 'cloudtrail-no-global-trails':
-                  noGlobalsMetadata
-                  },
-                  tags: []
-              };
-          var key = 'selected regions';
-          console.log(result['violations'][region]);
-          const regionKeys = Object.keys(result['violations'][region]);
-          regionKeys.forEach(regionKey => {
-              if(result['violations'][regionKey]) {
-                  if (result['violations'][regionKey][region]) {
-                      result['violations'][regionKey][region]['violations']['cloudtrail-no-global-trails'] = noGlobalsMetadata;
-                  } else {
-                      result['violations'][regionKey][region] = noGlobalsAlert;
-                  }
-              }
-          });
-      });
-  }
+var noGlobalsAlert = {};
+if (nRegionsWithGlobal == 0) {
+    console.log(regionArray);
+    regionArray.forEach(region => {
+        nViolations++;
+        noGlobalsMetadata =
+            {
+                'service': 'cloudtrail',
+                'link' : 'http://kb.cloudcoreo.com/mydoc_cloudtrail-trail-with-global.html',
+                'display_name': 'Cloudtrail global logging is disabled',
+                'description': 'CloudTrail global service logging is not enabled for the selected regions.',
+                'category': 'Audit',
+                'suggested_action': 'Enable CloudTrail global service logging in at least one region',
+                'level': 'Warning',
+                'region': region
+            };
+        noGlobalsAlert =
+            { violations:
+                { 'cloudtrail-no-global-trails':
+                noGlobalsMetadata
+                },
+                tags: []
+            };
+        var key = 'selected regions';
+        console.log(result['violations'][region]);
+        if (result['violations'][region][region]) {
+            result['violations'][region][region]['violations']['cloudtrail-no-global-trails'] = noGlobalsMetadata;
+        } else {
+            result['violations'][region][region] = noGlobalsAlert;
+        }
+    });
 }
 result['number_of_violations'] = nViolations;
 callback(result['violations']);
