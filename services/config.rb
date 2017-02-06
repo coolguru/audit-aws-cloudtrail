@@ -328,7 +328,7 @@ coreo_uni_util_jsrunner "jsrunner-process-alert-list-cloudtrail" do
                    :version => "3.7.0"
                }       ])
   function <<-EOH
-    let alertListToJSON = "${AUDIT_AWS_RDS_ALERT_LIST}";
+    let alertListToJSON = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
     let alertListArray = alertListToJSON.replace(/'/g, '"');
     callback(alertListArray);
   EOH
