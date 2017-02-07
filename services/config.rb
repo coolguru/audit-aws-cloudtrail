@@ -89,6 +89,10 @@ coreo_aws_rule_runner_cloudtrail "advise-cloudtrail" do
   regions ${AUDIT_AWS_CLOUDTRAIL_REGIONS}
 end
 
+coreo_uni_util_variables "global-variables" do
+  action :nothing
+end
+
 coreo_uni_util_jsrunner "cloudtrail-aggregate" do
   action :run
   json_input '{"composite name":"PLAN::stack_name",
@@ -325,6 +329,12 @@ coreo_uni_util_jsrunner "jsrunner-process-table-cloudtrail" do
   EOH
 end
 
+coreo_uni_util_variables "cloudtrail-save-table-to-the-global-variables" do
+  action :set
+  variables([
+                {'COMPOSITE::coreo_uni_util_variables.global-variables.table' => 'COMPOSITE::coreo_uni_util_jsrunner.jsrunner-process-table-cloudtrail.return'}
+            ])
+end
 
 coreo_uni_util_jsrunner "jsrunner-process-alert-list-cloudtrail" do
   action :run
