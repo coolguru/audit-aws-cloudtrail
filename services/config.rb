@@ -305,11 +305,15 @@ coreo_uni_util_jsrunner "jsrunner-process-suppression-cloudtrail" do
   EOH
 end
 
-coreo_uni_util_variables "cloudtrail-suppression-update-advisor-output" do
-  action :set
-  variables([
-                {'COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.jsrunner-process-suppression-cloudtrail.return'}
-            ])
+coreo_uni_util_jsrunner "cloudtrail-form-advisor-rule-list" do
+  action :run
+  json_input '{"test": "test"}'
+  function <<-EOH
+    var user_specified_rules = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
+    user_specified_rules = user_specified_rules.replace(/\\]/, ",'cloudtrail-trail-with-global']");
+    coreoExport('rule_list_for_advisor', user_specified_rules);
+    callback();
+  EOH
 end
 
 coreo_uni_util_jsrunner "jsrunner-process-table-cloudtrail" do
@@ -356,7 +360,7 @@ coreo_uni_util_jsrunner "cloudtrail-tags-to-notifiers-array" do
   packages([
         {
           :name => "cloudcoreo-jsrunner-commons",
-          :version => "1.7.8"
+          :version => "1.7.9"
         }       ])
   json_input '{ "composite name":"PLAN::stack_name",
                 "plan name":"PLAN::name",
@@ -425,7 +429,8 @@ COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-rollup.return
   '
   payload_type 'text'
   endpoint ({
-      :to => '${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}', :subject => 'CloudCoreo cloudtrail rule results on PLAN::stack_name :: PLAN::name'
+      :to => '${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}', :subject => 'PLAN::stack_name New Rollup Report for PLAN::name plan from CloudCoreo'
   })
 end
 
+# PLAN::stack_name New Rollup Report for PLAN::name plan from CloudCoreo
