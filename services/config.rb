@@ -73,7 +73,7 @@ end
 
 coreo_uni_util_jsrunner "cloudtrail-form-advisor-rule-list" do
   action :run
-  json_input '{"test": COMPOSITE::coreo_aws_rule}'
+  json_input '{"test": COMPOSITE::coreo_aws_rule.cloudtrail-trail-with-global}'
   function <<-EOH
     var user_specified_rules = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
     user_specified_rules = user_specified_rules.replace(/\\]/, ",'cloudtrail-trail-with-global']");
