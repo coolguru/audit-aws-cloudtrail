@@ -1,6 +1,8 @@
 
 # user-visible engine-powered rule definitions
 
+# TODO: inventory doc links
+
 coreo_aws_rule "cloudtrail-inventory" do
   action :define
   service :cloudtrail
@@ -36,6 +38,8 @@ coreo_aws_rule "cloudtrail-service-disabled" do
   raise_when [0]
   id_map "stack.current_region"
 end
+
+# TODO: rules that are service=user should not require objectives,audit_objects,operators,raise_when,id_map
 
 coreo_aws_rule "cloudtrail-no-global-trails" do
   action :define
@@ -102,6 +106,8 @@ coreo_uni_util_jsrunner "cloudtrail-form-advisor-rule-list" do
   EOH
 end
 
+# TODO: allow array to be generated from jsrunner so an interval rule def can be taken out of the user var array
+
 coreo_aws_rule_runner_cloudtrail "advise-cloudtrail" do
   action :run
   rules ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}
@@ -118,6 +124,8 @@ coreo_uni_util_variables "update-planwide-1" do
        {'COMPOSITE::coreo_uni_util_variables.planwide.plan_name' => 'PLAN::name'}
       ])
 end
+
+# TODO: plan vars for team (name/id) and cloud account (name/id)
 
 #list of available plan variables
 # run_id
