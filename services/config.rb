@@ -504,8 +504,7 @@ coreo_uni_util_jsrunner "cloudtrail-notifier-actions" do
 
     if (AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT.length > 0) {
       action_html = ":notify";
-      if (AUDIT_AWS_CLOUDTRAIL_OWNER_TAG === "NOT_A_TAG") {
-      } else {
+      if (! AUDIT_AWS_CLOUDTRAIL_OWNER_TAG === "NOT_A_TAG") {
         action_rollup = ':notify';
       }
     }
@@ -519,13 +518,14 @@ end
 
 coreo_uni_util_notify "advise-cloudtrail-to-tag-values" do
   action :${AUDIT_AWS_CLOUDTRAIL_HTML_REPORT}
-  #action COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-notifier-actions.AUDIT_AWS_CLOUDTRAIL_HTML_REPORT
+  #action(((${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}.length > 0) and (! ${AUDIT_AWS_CLOUDTRAIL_OWNER_TAG}.eql?("NOT_A_TAG"))) ? :notify : :nothing)
   notifiers 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-to-notifiers-array.return'
 end
 
 coreo_uni_util_notify "advise-cloudtrail-rollup" do
-  action :${AUDIT_AWS_CLOUDTRAIL_ROLLUP_REPORT}
+  #action :${AUDIT_AWS_CLOUDTRAIL_ROLLUP_REPORT}
   #action COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-notifier-actions.AUDIT_AWS_CLOUDTRAIL_ROLLUP_REPORT
+  action(((${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}.length > 0) and (! ${AUDIT_AWS_CLOUDTRAIL_OWNER_TAG}.eql?("NOT_A_TAG"))) ? :notify : :nothing)
   type 'email'
   allow_empty ${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}
   send_on '${AUDIT_AWS_CLOUDTRAIL_SEND_ON}'
