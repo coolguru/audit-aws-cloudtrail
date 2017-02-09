@@ -119,6 +119,15 @@ coreo_uni_util_variables "update-planwide-1" do
       ])
 end
 
+#list of available plan variables
+# run_id
+# revision
+# branch
+# id
+# name
+# stack_name
+# region
+
 coreo_uni_util_jsrunner "update-planwide-2" do
   action :run
   json_input '{}'
