@@ -153,7 +153,8 @@ coreo_uni_util_jsrunner "simulate-error-1" do
   action :run
   json_input '{}'
   function <<-EOH
-    var dear_me = 2 / 0;
+    \\
+    \\
     callback();
   EOH
 end
