@@ -149,15 +149,15 @@ coreo_uni_util_jsrunner "update-planwide-2" do
   EOH
 end
 
-coreo_uni_util_jsrunner "simulate-error-1" do
-  action :run
-  json_input '{}'
-  function <<-EOH
-    \\
-    \\
-    callback();
-  EOH
-end
+# coreo_uni_util_jsrunner "simulate-error-1" do
+#   action :run
+#   json_input '{}'
+#   function <<-EOH
+#     \\
+#     \\
+#     callback();
+#   EOH
+# end
 
 coreo_uni_util_jsrunner "cloudtrail-aggregate" do
   action :run
