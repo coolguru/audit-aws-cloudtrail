@@ -83,17 +83,15 @@ coreo_uni_util_variables "planwide" do
   action :set
   variables([
        {'COMPOSITE::coreo_uni_util_variables.planwide.initialized' => true},
-       {'COMPOSITE::coreo_uni_util_variables.planwide.audit_result' => 'waiting'}
+       {'COMPOSITE::coreo_uni_util_variables.planwide.audit_result' => 'initialized'}
       ])
 end
 
 # audit result
-# incomplete
-# na (no audit resources)
-# <blank>
+# incomplete [violations found + run ends in an error]
+# na [no audit resources in the plan]
 # passed
 # violations found
-# waiting...
 
 coreo_uni_util_jsrunner "cloudtrail-form-advisor-rule-list" do
   action :run
@@ -140,16 +138,17 @@ coreo_uni_util_jsrunner "update-planwide-2" do
   action :run
   json_input '{}'
   function <<-EOH
-    var curr_audit_result = "COMPOSITE::coreo_uni_util_variables.planwide.audit_result";
+    //var curr_audit_result = "COMPOSITE::coreo_uni_util_variables.planwide.audit_result";
     var num_advisor_violations = "COMPOSITE::coreo_uni_util_variables.planwide.number_violations";
     if (num_advisor_violations > 0) {
       coreoExport('audit_result', 'violations');
     } else {
-      coreoExport('audit_result', curr_audit_result);
+      coreoExport('audit_result', 'passed');
     }
     callback();
   EOH
 end
+
 coreo_uni_util_variables "update-planwide-2" do
   action :set
   variables([
@@ -157,15 +156,15 @@ coreo_uni_util_variables "update-planwide-2" do
       ])
 end
 
-# coreo_uni_util_jsrunner "simulate-error-1" do
-#   action :run
-#   json_input '{}'
-#   function <<-EOH
-#     \\
-#     \\
-#     callback();
-#   EOH
-# end
+coreo_uni_util_jsrunner "simulate-error-1" do
+  action :run
+  json_input '{}'
+  function <<-EOH
+    \\
+    \\
+    callback();
+  EOH
+end
 
 coreo_uni_util_jsrunner "cloudtrail-aggregate" do
   action :run
