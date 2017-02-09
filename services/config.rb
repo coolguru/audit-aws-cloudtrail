@@ -79,6 +79,18 @@ end
 
 # cross-resource variable holder
 
+
+# TODO: plan vars for team (name/id) and cloud account (name/id)
+
+#list of available plan variables
+# run_id
+# revision
+# branch
+# id
+# name
+# stack_name
+# region
+
 coreo_uni_util_variables "planwide" do
   action :set
   variables([
@@ -95,24 +107,9 @@ end
 # passed
 # violations found
 
-# coreo_uni_util_jsrunner "cloudtrail-form-advisor-rule-list" do
-#   action :run
-#   json_input '{}'
-#   function <<-EOH
-#     var user_specified_rules = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
-#     user_specified_rules = user_specified_rules.replace(/\\]/, ",'cloudtrail-trail-with-global']");
-#     coreoExport('rule_list_for_advisor', user_specified_rules);
-#     callback();
-#   EOH
-# end
-
-# TODO: allow array to be generated from jsrunner so an interval rule def can be taken out of the user var array
-
 coreo_aws_rule_runner_cloudtrail "advise-cloudtrail" do
   action :run
-  #rules ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}
   rules(${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}.push("cloudtrail-trail-with-global"))
-  #alerts COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-form-advisor-rule-list.rule_list_for_advisor
   regions ${AUDIT_AWS_CLOUDTRAIL_REGIONS}
 end
 
@@ -125,16 +122,6 @@ coreo_uni_util_variables "update-planwide-1" do
       ])
 end
 
-# TODO: plan vars for team (name/id) and cloud account (name/id)
-
-#list of available plan variables
-# run_id
-# revision
-# branch
-# id
-# name
-# stack_name
-# region
 
 coreo_uni_util_jsrunner "cloudtrail-aggregate" do
   action :run
