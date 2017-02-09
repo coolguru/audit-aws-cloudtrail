@@ -21,7 +21,7 @@ coreo_aws_rule "cloudtrail-service-disabled" do
   action :define
   service :cloudtrail
   link "http://kb.cloudcoreo.com/mydoc_cloudtrail-service-disabled.html"
-  display_name "Cloudtrail Service is disabled"
+  display_name "Cloudtrail Service is Disabled"
   description "CloudTrail logging is not enabled for this region. It should be enabled."
   category "Audit"
   suggested_action "Enable CloudTrail logs for each region."
@@ -42,7 +42,7 @@ coreo_aws_rule "cloudtrail-no-global-trails" do
   service :user
   category "Audit"
   link "http://kb.cloudcoreo.com/mydoc_cloudtrail-trail-with-global.html"
-  display_name "Cloudtrail global logging is disabled"
+  display_name "Cloudtrail Global Logging is Disabled"
   suggested_action "Enable CloudTrail global service logging in at least one region"
   description "CloudTrail global service logging is not enabled for the selected regions."
   level "Warning"
@@ -163,6 +163,7 @@ function createNoGlobalTrailViolation() {
         });
     }
 }
+<<<<<<< HEAD
 
 function setValueForNewJSONInput(region, noGlobalsMetadata, noGlobalsAlert) {
     const regionKeys = Object.keys(newJSONInput['violations'][region]);
@@ -173,6 +174,39 @@ function setValueForNewJSONInput(region, noGlobalsMetadata, noGlobalsAlert) {
             } else {
                 newJSONInput['violations'][regionKey][region] = noGlobalsAlert;
             }
+=======
+var noGlobalsAlert = {};
+if (nRegionsWithGlobal == 0) {
+    console.log(regionArray);
+    regionArray.forEach(region => {
+        nViolations++;
+        noGlobalsMetadata =
+            {
+                'service': 'cloudtrail',
+                'link' : 'http://kb.cloudcoreo.com/mydoc_cloudtrail-trail-with-global.html',
+                'display_name': 'Cloudtrail global logging is disabled',
+                'description': 'CloudTrail global service logging is not enabled for the selected regions.',
+                'category': 'Audit',
+                'suggested_action': 'Enable CloudTrail global service logging in at least one region',
+                'level': 'Warning',
+                'region': region
+            };
+        noGlobalsAlert =
+            { violations:
+                { 'cloudtrail-no-global-trails':
+                noGlobalsMetadata
+                },
+                tags: []
+            };
+        var key = 'selected regions';
+        console.log(result['violations'][region]);
+        if (result['violations'][region]) {
+          if (result['violations'][region][region]) {
+              result['violations'][region][region]['violations']['cloudtrail-no-global-trails'] = noGlobalsMetadata;
+          } else {
+              result['violations'][region][region] = noGlobalsAlert;
+          }
+>>>>>>> 35b9673880a212fb8af2ad9bc646f4bc7fdddcde
         }
     });
 }
