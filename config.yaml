@@ -57,3 +57,7 @@ variables:
             - eu-west-1
             - eu-west-1
             - sa-east-1
+    FOO:
+        type: string
+        required: false
+        default: "bar"
