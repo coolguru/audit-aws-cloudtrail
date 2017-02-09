@@ -136,18 +136,26 @@ end
 # stack_name
 # region
 
-# coreo_uni_util_jsrunner "update-planwide-2" do
-#   action :run
-#   json_input '{}'
-#   function <<-EOH
-#     var num_advisor_violations = "COMPOSITE::coreo_uni_util_variables.planwide.number_violations";
-#     if (num_advisor_violations > 0) {
-#       coreoExport('COMPOSITE::coreo_uni_util_variables.planwide.audit_result', 'violations');
-#     } else {
-#     }
-#     callback();
-#   EOH
-# end
+coreo_uni_util_jsrunner "update-planwide-2" do
+  action :run
+  json_input '{}'
+  function <<-EOH
+    var curr_audit_result = "COMPOSITE::coreo_uni_util_variables.planwide.audit_result";
+    var num_advisor_violations = "COMPOSITE::coreo_uni_util_variables.planwide.number_violations";
+    if (num_advisor_violations > 0) {
+      coreoExport('audit_result', 'violations');
+    } else {
+      coreoExport('audit_result', curr_audit_result);
+    }
+    callback();
+  EOH
+end
+coreo_uni_util_variables "update-planwide-2" do
+  action :set
+  variables([
+       {'COMPOSITE::coreo_uni_util_variables.planwide.audit_result' => 'COMPOSITE::coreo_uni_util_jsrunner.update-planwide-2.audit_result'}
+      ])
+end
 
 # coreo_uni_util_jsrunner "simulate-error-1" do
 #   action :run
