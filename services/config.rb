@@ -314,38 +314,6 @@ coreo_uni_util_jsrunner "jsrunner-process-suppression-cloudtrail" do
   EOH
 end
 
-coreo_uni_util_jsrunner "cloudtrail-form-advisor-rule-list" do
-  action :run
-  json_input '{"test": "test"}'
-  function <<-EOH
-    var user_specified_rules = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
-    user_specified_rules = user_specified_rules.replace(/\\]/, ",'cloudtrail-trail-with-global']");
-    coreoExport('rule_list_for_advisor', user_specified_rules);
-    callback();
-  EOH
-end
-
-coreo_uni_util_jsrunner "jsrunner-process-table-cloudtrail" do
-  action :run
-  provide_composite_access true
-  json_input 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'
-  packages([
-               {
-                   :name => "js-yaml",
-                   :version => "3.7.0"
-               }       ])
-  function <<-EOH
-    var fs = require('fs');
-    var yaml = require('js-yaml');
-    try {
-        var table = yaml.safeLoad(fs.readFileSync('./table.yaml', 'utf8'));
-    } catch (e) {
-    }
-    coreoExport('table', JSON.stringify(table));
-    callback(table);
-  EOH
-end
-
 
 coreo_uni_util_jsrunner "jsrunner-process-alert-list-cloudtrail" do
   action :run
