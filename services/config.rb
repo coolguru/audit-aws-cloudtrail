@@ -229,15 +229,15 @@ coreo_uni_util_variables "update-planwide-2" do
   ])
 end
 
-coreo_uni_util_jsrunner "simulate-error-1" do
-  action :run
-  json_input '{}'
-  function <<-EOH
-    \\
-    \\
-    callback();
-  EOH
-end
+# coreo_uni_util_jsrunner "simulate-error-1" do
+#   action :run
+#   json_input '{}'
+#   function <<-EOH
+#     \\
+#     \\
+#     callback();
+#   EOH
+# end
 
 # TODO - this needs to decrement the violationCounter for any suppression the panel will not count
 
