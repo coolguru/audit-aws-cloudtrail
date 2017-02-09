@@ -370,20 +370,42 @@ coreo_uni_util_jsrunner "cloudtrail-tags-to-notifiers-array" do
         {
           :name => "cloudcoreo-jsrunner-commons",
           :version => "1.8.0"
-        }       ])
+        },
+        {
+            :name => "js-yaml",
+            :version => "3.7.0"
+        } ])
   json_input '{ "composite name":"PLAN::stack_name",
                 "plan name":"PLAN::name",
-                "alert list": COMPOSITE::coreo_uni_util_jsrunner.jsrunner-process-alert-list-cloudtrail.return,
-                "table": COMPOSITE::coreo_uni_util_jsrunner.jsrunner-process-table-cloudtrail.return,
                 "violations": COMPOSITE::coreo_uni_util_jsrunner.jsrunner-process-suppression-cloudtrail.return}'
   function <<-EOH
+
   
+    let table = '';
+    const fs = require('fs');
+    const yaml = require('js-yaml');
+    try {
+        table = yaml.safeLoad(fs.readFileSync('./table.yaml', 'utf8'));
+    } catch (e) {
+    }
+    coreoExport('table', JSON.stringify(table));
+
+
+
+    let alertListToJSON = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
+    let alertListArray = alertListToJSON.replace(/'/g, '"');
+
+
+    json_input['alert list'] = alertListArray;
+
 const JSON_INPUT = json_input;
 const NO_OWNER_EMAIL = "${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}";
 const OWNER_TAG = "${AUDIT_AWS_CLOUDTRAIL_OWNER_TAG}";
 const ALLOW_EMPTY = "${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}";
 const SEND_ON = "${AUDIT_AWS_CLOUDTRAIL_SEND_ON}";
 const SHOWN_NOT_SORTED_VIOLATIONS_COUNTER = false;
+
+
 
 
 const VARIABLES = { NO_OWNER_EMAIL, OWNER_TAG, 
@@ -401,23 +423,30 @@ coreo_uni_util_jsrunner "cloudtrail-tags-rollup" do
   data_type "text"
   json_input 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-to-notifiers-array.return'
   function <<-EOH
-var rollup_string = "";
-let rollup = '';
-let emailText = '';
-let numberOfViolations = 0;
-for (var entry=0; entry < json_input.length; entry++) {
-    if (json_input[entry]['endpoint']['to'].length) {
-        numberOfViolations += parseInt(json_input[entry]['num_violations']);
-        emailText += "recipient: " + json_input[entry]['endpoint']['to'] + " - " + "Violations: " + json_input[entry]['num_violations'] + "\\n";
-    }
+
+const notifiers = json_input;
+
+function setTextRollup() {
+    let emailText = '';
+    let numberOfViolations = 0;
+    notifiers.forEach(notifier => {
+        const hasEmail = notifier['endpoint']['to'].length;
+        if(hasEmail) {
+            numberOfViolations += parseInt(notifier['num_violations']);
+            emailText += "recipient: " + notifier['endpoint']['to'] + " - " + "Violations: " + notifier['num_violations'] + "\\n";
+        }
+    });
+
+    textRollup += 'number of Violations: ' + numberOfViolations + "\\n";
+    textRollup += 'Rollup' + "\\n";
+    textRollup += emailText;
 }
 
-rollup += 'number of Violations: ' + numberOfViolations + "\\n";
-rollup += 'Rollup' + "\\n";
-rollup += emailText;
 
-rollup_string = rollup;
-callback(rollup_string);
+let textRollup = '';
+setTextRollup();
+
+callback(textRollup);
 EOH
 end
 
