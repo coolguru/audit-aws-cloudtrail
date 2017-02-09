@@ -111,7 +111,7 @@ end
 coreo_aws_rule_runner_cloudtrail "advise-cloudtrail" do
   action :run
   #rules ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}
-  rules("${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}".push("cloudtrail-trail-with-global"))
+  rules(${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}.push("cloudtrail-trail-with-global"))
   #alerts COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-form-advisor-rule-list.rule_list_for_advisor
   regions ${AUDIT_AWS_CLOUDTRAIL_REGIONS}
 end
