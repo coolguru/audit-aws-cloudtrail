@@ -98,82 +98,91 @@ coreo_uni_util_jsrunner "cloudtrail-aggregate" do
   "number_violations_ignored":"COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.number_ignored_violations",
   "violations":COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.report}'
   function <<-EOH
-var_regions = "${AUDIT_AWS_CLOUDTRAIL_REGIONS}";
-var_alerts = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
+const alertArrayJSON = "${AUDIT_AWS_CLOUDTRAIL_REGIONS}";
+const regionArrayJSON = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
 
-let alertArrayJSON =  var_alerts;
-let alertArray = alertArrayJSON.replace(/'/g, '"');
-alertArray = JSON.parse(alertArray);
 
-let regionArrayJSON =  var_regions;
-let regionArray = regionArrayJSON.replace(/'/g, '"');
-regionArray = JSON.parse(regionArray);
-let createRegionStr = '';
-regionArray.forEach(region=> {
-    createRegionStr+= region + ' ';
-});
-var result = {};
-result['composite name'] = json_input['composite name'];
-result['plan name'] = json_input['plan name'];
-result['regions'] = var_regions;
-result['violations'] = {};
-var nRegionsWithGlobal = 0;
-var nViolations = 0;
-for(var region in json_input['violations']) {
-    result['violations'][region] = {};
-    for (var key in json_input['violations'][region]) {
-        if (json_input['violations'][region].hasOwnProperty(key)) {
-            if (json_input['violations'][region][key]['violations']['cloudtrail-trail-with-global']) {
-                nRegionsWithGlobal++;
+
+const alertArray = JSON.parse(alertArrayJSON.replace(/'/g, '"'));
+const regionArray = JSON.parse(regionArrayJSON.replace(/'/g, '"'));
+
+let counterForGlobalViolation = 0;
+let violationCounter = 0;
+
+function createJSONInputWithNoGlobalTrails() {
+    copyViolationInNewJsonInput();
+    createNoGlobalTrailViolation();
+    copyPropForNewJsonInput();
+}
+
+function copyPropForNewJsonInput() {
+    newJSONInput['composite name'] = json_input['composite name'];
+    newJSONInput['plan name'] = json_input['plan name'];
+    newJSONInput['regions'] = regionArrayJSON;
+    newJSONInput['number_of_violations'] = violationCounter;
+}
+
+function copyViolationInNewJsonInput() {
+    newJSONInput['violations'] = {};
+    const regionKeys = Object.keys(json_input['violations']);
+    regionKeys.forEach(regionKey => {
+        newJSONInput['violations'][regionKey] = {};
+        const objectIdKeys = Object.keys(json_input['violations'][regionKey]);
+        objectIdKeys.forEach(objectIdKey => {
+            const hasCloudtrailWithGlobal = json_input['violations'][regionKey][objectIdKey]['violations']['cloudtrail-trail-with-global'];
+            if (hasCloudtrailWithGlobal) {
+                counterForGlobalViolation++;
             } else {
-                nViolations++;
-                result['violations'][region][key] = json_input['violations'][region][key];
+                violationCounter++;
+                newJSONInput['violations'][regionKey][objectIdKey] = json_input['violations'][regionKey][objectIdKey];
             }
-        }
+        });
+    });
+}
+
+function createNoGlobalTrailViolation() {
+    const hasCloudtrailNoGlobalInAlertArray = alertArray.indexOf('cloudtrail-no-global-trails') >= 0;
+    if (counterForGlobalViolation && hasCloudtrailNoGlobalInAlertArray) {
+        regionArray.forEach(region => {
+            violationCounter++;
+            const noGlobalsMetadata = {
+                'service': 'cloudtrail',
+                'link': 'http://kb.cloudcoreo.com/mydoc_cloudtrail-trail-with-global.html',
+                'display_name': 'Cloudtrail global logging is disabled',
+                'description': 'CloudTrail global service logging is not enabled for the selected regions.',
+                'category': 'Audit',
+                'suggested_action': 'Enable CloudTrail global service logging in at least one region',
+                'level': 'Warning',
+                'region': region
+            };
+            const noGlobalsAlert = {
+                violations: {'no-global-trails': noGlobalsMetadata },
+                tags: []
+            };
+            setValueForNewJSONInput(region, noGlobalsMetadata, noGlobalsAlert);
+        });
     }
 }
 
-if (alertArray.indexOf('cloudtrail-no-global-trails') >= 0) {
-  var noGlobalsAlert = {};
-  if (nRegionsWithGlobal == 0) {
-      console.log(regionArray);
-      regionArray.forEach(region => {
-          nViolations++;
-          noGlobalsMetadata =
-              {
-                  'service': 'cloudtrail',
-                  'link' : 'http://kb.cloudcoreo.com/mydoc_cloudtrail-trail-with-global.html',
-                  'display_name': 'Cloudtrail global logging is disabled',
-                  'description': 'CloudTrail global service logging is not enabled for the selected regions.',
-                  'category': 'Audit',
-                  'suggested_action': 'Enable CloudTrail global service logging in at least one region',
-                  'level': 'Warning',
-                  'region': region
-              };
-          noGlobalsAlert =
-              { violations:
-                  { 'cloudtrail-no-global-trails':
-                  noGlobalsMetadata
-                  },
-                  tags: []
-              };
-          var key = 'selected regions';
-          console.log(result['violations'][region]);
-          const regionKeys = Object.keys(result['violations'][region]);
-          regionKeys.forEach(regionKey => {
-              if(result['violations'][regionKey]) {
-                  if (result['violations'][regionKey][region]) {
-                      result['violations'][regionKey][region]['violations']['cloudtrail-no-global-trails'] = noGlobalsMetadata;
-                  } else {
-                      result['violations'][regionKey][region] = noGlobalsAlert;
-                  }
-              }
-          });
-      });
-  }
+function setValueForNewJSONInput(region, noGlobalsMetadata, noGlobalsAlert) {
+    const regionKeys = Object.keys(newJSONInput['violations'][region]);
+    regionKeys.forEach(regionKey => {
+        if (newJSONInput['violations'][regionKey]) {
+            if (newJSONInput['violations'][regionKey][region]) {
+                newJSONInput['violations'][regionKey][region]['violations']['no-global-trails'] = noGlobalsMetadata;
+            } else {
+                newJSONInput['violations'][regionKey][region] = noGlobalsAlert;
+            }
+        }
+    });
 }
-result['number_of_violations'] = nViolations;
-callback(result['violations']);
+
+
+const newJSONInput = {};
+
+createJSONInputWithNoGlobalTrails();
+
+callback(newJSONInput['violations']);
   EOH
 end
 
@@ -356,7 +365,7 @@ coreo_uni_util_jsrunner "cloudtrail-tags-to-notifiers-array" do
   packages([
         {
           :name => "cloudcoreo-jsrunner-commons",
-          :version => "1.7.8"
+          :version => "1.8.0z"
         }       ])
   json_input '{ "composite name":"PLAN::stack_name",
                 "plan name":"PLAN::name",
