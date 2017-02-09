@@ -156,16 +156,6 @@ coreo_uni_util_variables "update-planwide-2" do
       ])
 end
 
-coreo_uni_util_jsrunner "simulate-error-1" do
-  action :run
-  json_input '{}'
-  function <<-EOH
-    \\
-    \\
-    callback();
-  EOH
-end
-
 coreo_uni_util_jsrunner "cloudtrail-aggregate" do
   action :run
   json_input '{"composite name":"PLAN::stack_name",
@@ -259,15 +249,35 @@ const newJSONInput = {};
 
 createJSONInputWithNoGlobalTrails();
 
+coreoExport('violation_counter', violationCounter);
+
 callback(newJSONInput['violations']);
   EOH
 end
 
-coreo_uni_util_variables "cloudtrail-update-advisor-output" do
+coreo_uni_util_variables "update-planwide-3" do
   action :set
   variables([
-                {'COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'}
+                {'COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'},
+                {'COMPOSITE::coreo_uni_util_variables.planwide.results' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'},
             ])
+end
+
+coreo_uni_util_variables "update-planwide-3" do
+  action :set
+  variables([
+       {'COMPOSITE::coreo_uni_util_variables.planwide.number_violations' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.violation_counter'}
+      ])
+end
+
+coreo_uni_util_jsrunner "simulate-error-1" do
+  action :run
+  json_input '{}'
+  function <<-EOH
+    \\
+    \\
+    callback();
+  EOH
 end
 
 coreo_uni_util_jsrunner "jsrunner-process-suppression-cloudtrail" do
