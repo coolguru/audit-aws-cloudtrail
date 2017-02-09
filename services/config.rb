@@ -500,7 +500,7 @@ coreo_uni_util_jsrunner "cloudtrail-notifier-actions" do
     var action_html = ':nothing';
     var action_rollup = ':nothing';
 
-    if (AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT.length() > 0) {
+    if (AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT.length > 0) {
       action_html = ":notify";
       if (AUDIT_AWS_CLOUDTRAIL_OWNER_TAG === "NOT_A_TAG") {
       } else {
