@@ -125,10 +125,9 @@ coreo_uni_util_jsrunner "update-planwide-2" do
   function <<-EOH
     var num_advisor_violations = "COMPOSITE::coreo_uni_util_variables.planwide.number_violations";
     if (num_advisor_violations > 0) {
-        coreoExport('COMPOSITE::coreo_uni_util_variables.planwide.audit_result', 'violations');
-      } else {
-      }
-    coreoExport('COMPOSITE::coreo_uni_util_variables.planwide.audit_result', user_specified_rules);
+      coreoExport('COMPOSITE::coreo_uni_util_variables.planwide.audit_result', 'violations');
+    } else {
+    }
     callback();
   EOH
 end
