@@ -255,8 +255,6 @@ coreo_uni_util_jsrunner "cloudtrail-tags-to-notifiers-array" do
                 "violations": COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return}'
   function <<-EOH
 
-
-
 function setTableAndSuppression() {
   let table;
   let suppression;
@@ -279,9 +277,7 @@ function setTableAndSuppression() {
   json_input['table'] = table || {};
 }
 
-
 setTableAndSuppression();
-
 
 const JSON_INPUT = json_input;
 const NO_OWNER_EMAIL = "${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}";
@@ -289,9 +285,6 @@ const OWNER_TAG = "${AUDIT_AWS_CLOUDTRAIL_OWNER_TAG}";
 const ALLOW_EMPTY = "${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}";
 const SEND_ON = "${AUDIT_AWS_CLOUDTRAIL_SEND_ON}";
 const SHOWN_NOT_SORTED_VIOLATIONS_COUNTER = false;
-
-
-
 
 const VARIABLES = { NO_OWNER_EMAIL, OWNER_TAG,
   ALLOW_EMPTY, SEND_ON, SHOWN_NOT_SORTED_VIOLATIONS_COUNTER};
