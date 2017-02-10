@@ -215,6 +215,7 @@ function setValueForNewJSONInput(region, noGlobalsMetadata, noGlobalsAlert) {
 const newJSONInput = {};
 
 createJSONInputWithNoGlobalTrails();
+coreoExport('violation_counter', violationCounter);
 
 callback(newJSONInput['violations']);
   EOH
