@@ -264,8 +264,8 @@ function setTableAndSuppression() {
   const fs = require('fs');
   const yaml = require('js-yaml');
   try {
-      table = yaml.safeLoad(fs.readFileSync('./table.yaml', 'utf8'));
-      suppression = yaml.safeLoad(fs.readFileSync('./table.yaml', 'utf8'));
+      table = yaml.safeLoad(fs.readFileSync('../table.yaml', 'utf8'));
+      suppression = yaml.safeLoad(fs.readFileSync('../suppression.yaml', 'utf8'));
   } catch (e) {
   }
   coreoExport('table', JSON.stringify(table));
