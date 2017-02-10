@@ -1,3 +1,4 @@
+# user-visible engine-powered rule definitions
 
 coreo_aws_rule "cloudtrail-inventory" do
   action :define
@@ -35,7 +36,7 @@ coreo_aws_rule "cloudtrail-service-disabled" do
   id_map "stack.current_region"
 end
 
-# the jsrunner puts cloudtrail in for the service
+# TODO: rules that are service=user should not require objectives,audit_objects,operators,raise_when,id_map
 
 coreo_aws_rule "cloudtrail-no-global-trails" do
   action :define
@@ -54,6 +55,8 @@ coreo_aws_rule "cloudtrail-no-global-trails" do
   id_map ""
 end
 
+# end of user-visible content. Remaining resources are system-defined
+
 coreo_aws_rule "cloudtrail-trail-with-global" do
   action :define
   service :cloudtrail
@@ -71,6 +74,29 @@ coreo_aws_rule "cloudtrail-trail-with-global" do
   id_map "stack.current_region"
 end
 
+# cross-resource variable holder
+
+# TODO: plan vars for team (name/id) and cloud account (name/id)
+#list of available plan variables
+# run_id
+# revision
+# branch
+# id
+# name
+# stack_name
+# region
+
+coreo_uni_util_variables "planwide" do
+  action :set
+  variables([
+                {'COMPOSITE::coreo_uni_util_variables.planwide.composite_name' => 'PLAN::stack_name'},
+                {'COMPOSITE::coreo_uni_util_variables.planwide.plan_name' => 'PLAN::name'},
+                {'COMPOSITE::coreo_uni_util_variables.planwide.results' => 'unset'},
+                {'COMPOSITE::coreo_uni_util_variables.planwide.number_violations' => 'unset'}
+            ])
+end
+
+
 coreo_uni_util_jsrunner "cloudtrail-form-advisor-rule-list" do
   action :run
   json_input '{}'
@@ -84,9 +110,17 @@ end
 
 coreo_aws_rule_runner_cloudtrail "advise-cloudtrail" do
   action :run
-  rules ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}
-  #alerts COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-form-advisor-rule-list.rule_list_for_advisor
+  rules(${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}.push("cloudtrail-trail-with-global"))
   regions ${AUDIT_AWS_CLOUDTRAIL_REGIONS}
+end
+
+coreo_uni_util_variables "update-planwide-1" do
+  action :set
+  variables([
+                {'COMPOSITE::coreo_uni_util_variables.planwide.results' => 'COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.report'},
+                {'COMPOSITE::coreo_uni_util_variables.planwide.number_violations' => 'COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.number_violations'},
+
+            ])
 end
 
 coreo_uni_util_jsrunner "cloudtrail-aggregate" do
@@ -184,6 +218,16 @@ createJSONInputWithNoGlobalTrails();
 
 callback(newJSONInput['violations']);
   EOH
+end
+
+
+coreo_uni_util_variables "update-planwide-2" do
+  action :set
+  variables([
+                {'COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'},
+                {'COMPOSITE::coreo_uni_util_variables.planwide.results' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'},
+                {'COMPOSITE::coreo_uni_util_variables.planwide.number_violations' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.violation_counter'}
+            ])
 end
 
 coreo_uni_util_variables "cloudtrail-update-advisor-output" do
