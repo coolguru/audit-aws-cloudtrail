@@ -254,30 +254,24 @@ coreo_uni_util_jsrunner "cloudtrail-tags-to-notifiers-array" do
                 "plan name":"PLAN::name",
                 "violations": COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return}'
   function <<-EOH
+let table;
+let suppression;
 
-  
-
-function setTableAndSuppression() {
-  let table;
-  let suppression;
-
-  const fs = require('fs');
-  const yaml = require('js-yaml');
-  try {
-      table = yaml.safeLoad(fs.readFileSync('./table.yaml', 'utf8'));
-      suppression = yaml.safeLoad(fs.readFileSync('./table.yaml', 'utf8'));
-  } catch (e) {
-  }
-  coreoExport('table', JSON.stringify(table));
-  coreoExport('suppression', JSON.stringify(table));
-  
-  let alertListToJSON = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
-  let alertListArray = alertListToJSON.replace(/'/g, '"');
-  json_input['alert list'] = alertListArray || [];
-  json_input['suppression'] = suppression || [];
-  json_input['table'] = table || {};
+const fs = require('fs');
+const yaml = require('js-yaml');
+try {
+    table = yaml.safeLoad(fs.readFileSync('./table.yaml', 'utf8'));
+    suppression = yaml.safeLoad(fs.readFileSync('./suppression.yaml', 'utf8'));
+} catch (e) {
 }
+coreoExport('table', JSON.stringify(table));
+coreoExport('suppression', JSON.stringify(suppression));
 
+let alertListToJSON = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
+let alertListArray = alertListToJSON.replace(/'/g, '"');
+json_input['alert list'] = alertListArray || [];
+json_input['suppression'] = suppression || [];
+json_input['table'] = table || {};
 
 setTableAndSuppression();
 
@@ -306,7 +300,7 @@ coreo_uni_util_variables "update-planwide-3" do
   action :set
   variables([
                 {'COMPOSITE::coreo_uni_util_variables.planwide.table' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-to-notifiers-array.table'}
-            ])
+          ])
 end
 
 coreo_uni_util_jsrunner "cloudtrail-tags-rollup" do
