@@ -1,8 +1,6 @@
 
 # user-visible engine-powered rule definitions
 
-# TODO: inventory doc links
-
 coreo_aws_rule "cloudtrail-inventory" do
   action :define
   service :cloudtrail
@@ -79,9 +77,7 @@ end
 
 # cross-resource variable holder
 
-
 # TODO: plan vars for team (name/id) and cloud account (name/id)
-
 #list of available plan variables
 # run_id
 # revision
@@ -101,12 +97,6 @@ coreo_uni_util_variables "planwide" do
       ])
 end
 
-# audit result
-# incomplete [violations found + run ends in an error]
-# na [no audit resources in the plan]
-# passed
-# violations found
-
 coreo_aws_rule_runner_cloudtrail "advise-cloudtrail" do
   action :run
   rules(${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}.push("cloudtrail-trail-with-global"))
@@ -121,7 +111,6 @@ coreo_uni_util_variables "update-planwide-1" do
 
       ])
 end
-
 
 coreo_uni_util_jsrunner "cloudtrail-aggregate" do
   action :run
