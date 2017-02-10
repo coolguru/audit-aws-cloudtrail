@@ -254,27 +254,34 @@ coreo_uni_util_jsrunner "cloudtrail-tags-to-notifiers-array" do
                 "plan name":"PLAN::name",
                 "violations": COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return}'
   function <<-EOH
-let table;
-let suppression;
 
-const fs = require('fs');
-const yaml = require('js-yaml');
-try {
-    table = yaml.safeLoad(fs.readFileSync('./table.yaml', 'utf8'));
-} catch (e) {
-}
-try {
-    suppression = yaml.safeLoad(fs.readFileSync('./suppression.yaml', 'utf8'));
-} catch (e) {
-}
-coreoExport('table', JSON.stringify(table));
-coreoExport('suppression', JSON.stringify(suppression));
 
-let alertListToJSON = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
-let alertListArray = alertListToJSON.replace(/'/g, '"');
-json_input['alert list'] = alertListArray || [];
-json_input['suppression'] = suppression || [];
-json_input['table'] = table || {};
+
+function setTableAndSuppression() {
+  let table;
+  let suppression;
+
+  const fs = require('fs');
+  const yaml = require('js-yaml');
+  try {
+      table = yaml.safeLoad(fs.readFileSync('./table.yaml', 'utf8'));
+  } catch (e) { console.log(e) }
+  try {
+      suppression = yaml.safeLoad(fs.readFileSync('./suppression.yaml', 'utf8'));
+  } catch (e) { console.log(e) }
+  coreoExport('table', JSON.stringify(table));
+  coreoExport('suppression', JSON.stringify(suppression));
+
+  let alertListToJSON = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
+  let alertListArray = alertListToJSON.replace(/'/g, '"');
+  json_input['alert list'] = alertListArray || [];
+  json_input['suppression'] = suppression || [];
+  json_input['table'] = table || {};
+}
+
+
+setTableAndSuppression();
+
 
 const JSON_INPUT = json_input;
 const NO_OWNER_EMAIL = "${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}";
@@ -286,7 +293,7 @@ const SHOWN_NOT_SORTED_VIOLATIONS_COUNTER = false;
 
 
 
-const VARIABLES = { NO_OWNER_EMAIL, OWNER_TAG, 
+const VARIABLES = { NO_OWNER_EMAIL, OWNER_TAG,
   ALLOW_EMPTY, SEND_ON, SHOWN_NOT_SORTED_VIOLATIONS_COUNTER};
 
 const CloudCoreoJSRunner = require('cloudcoreo-jsrunner-commons');
