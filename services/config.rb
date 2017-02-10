@@ -276,9 +276,6 @@ json_input['alert list'] = alertListArray || [];
 json_input['suppression'] = suppression || [];
 json_input['table'] = table || {};
 
-setTableAndSuppression();
-
-
 const JSON_INPUT = json_input;
 const NO_OWNER_EMAIL = "${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}";
 const OWNER_TAG = "${AUDIT_AWS_CLOUDTRAIL_OWNER_TAG}";
