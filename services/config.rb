@@ -251,7 +251,9 @@ coreo_uni_util_jsrunner "jsrunner-process-suppression-cloudtrail" do
   try {
       suppression = yaml.safeLoad(fs.readFileSync('./suppression.yaml', 'utf8'));
   } catch (e) {
-  }
+    console.log(`Error reading suppression.yaml file: ${e}`);
+    suppression = {};
+   }
   coreoExport('suppression', JSON.stringify(suppression));
   function createViolationWithSuppression(result) {
       const regionKeys = Object.keys(violations);
