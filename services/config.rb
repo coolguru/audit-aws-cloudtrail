@@ -193,151 +193,13 @@ coreo_uni_util_variables "cloudtrail-update-advisor-output" do
             ])
 end
 
-coreo_uni_util_jsrunner "jsrunner-process-suppression-cloudtrail" do
-  action :run
-  provide_composite_access true
-  json_input '{ "composite name":"PLAN::stack_name",
-                "plan name":"PLAN::name",
-                "violations": COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return}'
-  packages([
-               {
-                   :name => "js-yaml",
-                   :version => "3.7.0"
-               }       ])
-  function <<-EOH
-  const fs = require('fs');
-  const yaml = require('js-yaml');
-  let suppression;
-  try {
-      suppression = yaml.safeLoad(fs.readFileSync('./suppression.yaml', 'utf8'));
-  } catch (e) {
-  }
-  coreoExport('suppression', JSON.stringify(suppression));
-  function createViolationWithSuppression(result) {
-      const regionKeys = Object.keys(violations);
-      regionKeys.forEach(regionKey => {
-          result[regionKey] = {};
-          const objectIdKeys = Object.keys(violations[regionKey]);
-          objectIdKeys.forEach(objectIdKey => {
-              createObjectId(regionKey, objectIdKey);
-          });
-      });
-  }
-  
-  function createObjectId(regionKey, objectIdKey) {
-      const wayToResultObjectId = result[regionKey][objectIdKey] = {};
-      const wayToViolationObjectId = violations[regionKey][objectIdKey];
-      wayToResultObjectId.tags = wayToViolationObjectId.tags;
-      wayToResultObjectId.violations = {};
-      createSuppression(wayToViolationObjectId, regionKey, objectIdKey);
-  }
-  
-  
-  function createSuppression(wayToViolationObjectId, regionKey, violationObjectIdKey) {
-      const ruleKeys = Object.keys(wayToViolationObjectId['violations']);
-      ruleKeys.forEach(violationRuleKey => {
-          result[regionKey][violationObjectIdKey].violations[violationRuleKey] = wayToViolationObjectId['violations'][violationRuleKey];
-          Object.keys(suppression).forEach(suppressRuleKey => {
-              suppression[suppressRuleKey].forEach(suppressionObject => {
-                  Object.keys(suppressionObject).forEach(suppressObjectIdKey => {
-                      setDateForSuppression(
-                          suppressionObject, suppressObjectIdKey,
-                          violationRuleKey, suppressRuleKey,
-                          violationObjectIdKey, regionKey
-                      );
-                  });
-              });
-          });
-      });
-  }
-  
-  
-  function setDateForSuppression(
-      suppressionObject, suppressObjectIdKey,
-      violationRuleKey, suppressRuleKey,
-      violationObjectIdKey, regionKey
-  ) {
-      file_date = null;
-      let suppressDate = suppressionObject[suppressObjectIdKey];
-      const areViolationsEqual = violationRuleKey === suppressRuleKey && violationObjectIdKey === suppressObjectIdKey;
-      if (areViolationsEqual) {
-          const nowDate = new Date();
-          const correctDateSuppress = getCorrectSuppressDate(suppressDate);
-          const isSuppressionDate = nowDate <= correctDateSuppress;
-          if (isSuppressionDate) {
-              setSuppressionProp(regionKey, violationObjectIdKey, violationRuleKey, file_date);
-          } else {
-              setSuppressionExpired(regionKey, violationObjectIdKey, violationRuleKey, file_date);
-          }
-      }
-  }
-  
-  
-  function getCorrectSuppressDate(suppressDate) {
-      const hasSuppressionDate = suppressDate !== '';
-      if (hasSuppressionDate) {
-          file_date = suppressDate;
-      } else {
-          suppressDate = new Date();
-      }
-      let correctDateSuppress = new Date(suppressDate);
-      if (isNaN(correctDateSuppress.getTime())) {
-          correctDateSuppress = new Date(0);
-      }
-      return correctDateSuppress;
-  }
-  
-  
-  function setSuppressionProp(regionKey, objectIdKey, violationRuleKey, file_date) {
-      const wayToViolationObject = result[regionKey][objectIdKey].violations[violationRuleKey];
-      wayToViolationObject["suppressed"] = true;
-      if (file_date != null) {
-          wayToViolationObject["suppression_until"] = file_date;
-          wayToViolationObject["suppression_expired"] = false;
-      }
-  }
-  
-  function setSuppressionExpired(regionKey, objectIdKey, violationRuleKey, file_date) {
-      if (file_date !== null) {
-          result[regionKey][objectIdKey].violations[violationRuleKey]["suppression_until"] = file_date;
-          result[regionKey][objectIdKey].violations[violationRuleKey]["suppression_expired"] = true;
-      } else {
-          result[regionKey][objectIdKey].violations[violationRuleKey]["suppression_expired"] = false;
-      }
-      result[regionKey][objectIdKey].violations[violationRuleKey]["suppressed"] = false;
-  }
-  
-  const violations = json_input['violations'];
-  const result = {};
-  createViolationWithSuppression(result, json_input);
-  callback(result);
-  EOH
-end
-
-
-coreo_uni_util_jsrunner "jsrunner-process-alert-list-cloudtrail" do
-  action :run
-  provide_composite_access true
-  json_input '{"violations":COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.report}'
-  packages([
-               {
-                   :name => "js-yaml",
-                   :version => "3.7.0"
-               }       ])
-  function <<-EOH
-    let alertListToJSON = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
-    let alertListArray = alertListToJSON.replace(/'/g, '"');
-    callback(alertListArray);
-  EOH
-end
-
 coreo_uni_util_jsrunner "cloudtrail-tags-to-notifiers-array" do
   action :run
   data_type "json"
   packages([
         {
           :name => "cloudcoreo-jsrunner-commons",
-          :version => "1.8.0"
+          :version => "1.8.2"
         },
         {
             :name => "js-yaml",
@@ -345,26 +207,35 @@ coreo_uni_util_jsrunner "cloudtrail-tags-to-notifiers-array" do
         } ])
   json_input '{ "composite name":"PLAN::stack_name",
                 "plan name":"PLAN::name",
-                "violations": COMPOSITE::coreo_uni_util_jsrunner.jsrunner-process-suppression-cloudtrail.return}'
+                "violations": COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return}'
   function <<-EOH
 
   
-    let table = '';
-    const fs = require('fs');
-    const yaml = require('js-yaml');
-    try {
-        table = yaml.safeLoad(fs.readFileSync('./table.yaml', 'utf8'));
-    } catch (e) {
-    }
-    coreoExport('table', JSON.stringify(table));
+
+function setTableAndSuppression() {
+  let table;
+  let suppression;
+
+  const fs = require('fs');
+  const yaml = require('js-yaml');
+  try {
+      table = yaml.safeLoad(fs.readFileSync('./table.yaml', 'utf8'));
+      suppression = yaml.safeLoad(fs.readFileSync('./suppression.yaml', 'utf8'));
+  } catch (e) {
+  }
+  coreoExport('table', JSON.stringify(table));
+  coreoExport('suppression', JSON.stringify(table));
+  
+  let alertListToJSON = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
+  let alertListArray = alertListToJSON.replace(/'/g, '"');
+  json_input['alert list'] = alertListArray || [];
+  json_input['suppression'] = suppression || [];
+  json_input['table'] = table || {};
+}
 
 
+setTableAndSuppression();
 
-    let alertListToJSON = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
-    let alertListArray = alertListToJSON.replace(/'/g, '"');
-
-
-    json_input['alert list'] = alertListArray;
 
 const JSON_INPUT = json_input;
 const NO_OWNER_EMAIL = "${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}";
@@ -405,7 +276,7 @@ function setTextRollup() {
         }
     });
 
-    textRollup += 'number of Violations: ' + numberOfViolations + "\\n";
+    textRollup += 'Number of Violating Cloud Objects: ' + numberOfViolations + "\\n";
     textRollup += 'Rollup' + "\\n";
     textRollup += emailText;
 }
