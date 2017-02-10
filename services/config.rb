@@ -335,12 +335,12 @@ callback(textRollup);
 end
 
 coreo_uni_util_notify "advise-cloudtrail-to-tag-values" do
-  action :notify
+  action((("${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}".length > 0)) ? :notify : :nothing)
   notifiers 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-to-notifiers-array.return'
 end
 
 coreo_uni_util_notify "advise-cloudtrail-rollup" do
-  action :notify
+  action((("${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}".length > 0) and (! "${AUDIT_AWS_CLOUDTRAIL_OWNER_TAG}".eql?("NOT_A_TAG"))) ? :notify : :nothing)
   type 'email'
   allow_empty ${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}
   send_on '${AUDIT_AWS_CLOUDTRAIL_SEND_ON}'
