@@ -302,6 +302,13 @@ callback(notifiers);
   EOH
 end
 
+coreo_uni_util_variables "update-planwide-3" do
+  action :set
+  variables([
+                {'COMPOSITE::coreo_uni_util_variables.planwide.table' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-to-notifiers-array.table'}
+            ])
+end
+
 coreo_uni_util_jsrunner "cloudtrail-tags-rollup" do
   action :run
   data_type "text"
