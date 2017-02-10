@@ -257,28 +257,38 @@ coreo_uni_util_jsrunner "cloudtrail-tags-to-notifiers-array" do
 
   
 
-function setTableAndSuppression() {
+function test() {
   let table;
   let suppression;
+  return new Promise((resolve, reject) => {
+    const fs = require('fs');
+    const yaml = require('js-yaml');
+    try {
+        table = yaml.safeLoad(fs.readFileSync('./table.yaml', 'utf8'));
+        suppression = yaml.safeLoad(fs.readFileSync('./suppression.yaml', 'utf8'));
+        return resolve({table, suppression});
+    } catch (e) {
+    }
+  })
+}
 
-  const fs = require('fs');
-  const yaml = require('js-yaml');
-  try {
-      table = yaml.safeLoad(fs.readFileSync('./table.yaml', 'utf8'));
-  } catch (e) {
-  }
-  try {
-      table = yaml.safeLoad(fs.readFileSync('./table.yaml', 'utf8'));
-  } catch (e) {
-  }
-  coreoExport('table', JSON.stringify(table));
-  coreoExport('suppression', JSON.stringify(suppression));
+function setTableAndSuppression() {
+
+  test().then((tableAndSuppression) => {
+
+    let table = tableAndSuppression['table'];
+    let suppression = tableAndSuppression['suppression'];
+    coreoExport('table', JSON.stringify(table));
+    coreoExport('suppression', JSON.stringify(suppression));
+    
+    let alertListToJSON = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
+    let alertListArray = alertListToJSON.replace(/'/g, '"');
+    json_input['alert list'] = alertListArray || [];
+    json_input['suppression'] = suppression || [];
+    json_input['table'] = table || {};
+  })
   
-  let alertListToJSON = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
-  let alertListArray = alertListToJSON.replace(/'/g, '"');
-  json_input['alert list'] = alertListArray || [];
-  json_input['suppression'] = suppression || [];
-  json_input['table'] = table || {};
+
 }
 
 
