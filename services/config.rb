@@ -188,13 +188,21 @@ function createNoGlobalTrailViolation() {
 
 function setValueForNewJSONInput(region, noGlobalsMetadata, noGlobalsAlert) {
     const regionKeys = Object.keys(newJSONInput['violations'][region]);
+    var found = false;
     regionKeys.forEach(regionKey => {
         if (newJSONInput['violations'][regionKey]) {
+            found = true;
             if (newJSONInput['violations'][regionKey][region]) {
                 newJSONInput['violations'][regionKey][region]['violations']['cloudtrail-no-global-trails'] = noGlobalsMetadata;
             } else {
                 newJSONInput['violations'][regionKey][region] = noGlobalsAlert;
             }
+        }
+        if (!found) {
+            newJSONInput['violations'][regionKey] = {};
+            newJSONInput['violations'][regionKey][region] = {};
+            newJSONInput['violations'][regionKey][region]['violations'] = {};
+            newJSONInput['violations'][regionKey][region]['violations']['cloudtrail-no-global-trails'] = noGlobalsMetadata;
         }
     });
 }
