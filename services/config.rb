@@ -178,7 +178,7 @@ function createNoGlobalTrailViolation() {
                 'region': region
             };
             const noGlobalsAlert = {
-                violations: {'no-global-trails': noGlobalsMetadata },
+                violations: {'cloudtrail-no-global-trails': noGlobalsMetadata },
                 tags: []
             };
             setValueForNewJSONInput(region, noGlobalsMetadata, noGlobalsAlert);
