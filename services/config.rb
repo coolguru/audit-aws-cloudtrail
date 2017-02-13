@@ -126,7 +126,7 @@ const regionArrayJSON = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
 const alertArray = JSON.parse(alertArrayJSON.replace(/'/g, '"'));
 const regionArray = JSON.parse(regionArrayJSON.replace(/'/g, '"'));
 
-let counterForGlobalViolation = 0;
+let counterForGlobalTrails = 0;
 let violationCounter = 0;
 
 function createJSONInputWithNoGlobalTrails() {
@@ -151,7 +151,7 @@ function copyViolationInNewJsonInput() {
         objectIdKeys.forEach(objectIdKey => {
             const hasCloudtrailWithGlobal = json_input['violations'][regionKey][objectIdKey]['violations']['cloudtrail-trail-with-global'];
             if (hasCloudtrailWithGlobal) {
-                counterForGlobalViolation++;
+                counterForGlobalTrails++;
             } else {
                 violationCounter++;
                 newJSONInput['violations'][regionKey][objectIdKey] = json_input['violations'][regionKey][objectIdKey];
@@ -161,8 +161,9 @@ function copyViolationInNewJsonInput() {
 }
 
 function createNoGlobalTrailViolation() {
-    const hasCloudtrailNoGlobalInAlertArray = alertArray.indexOf('cloudtrail-no-global-trails') >= 0;
-    if (counterForGlobalViolation && hasCloudtrailNoGlobalInAlertArray) {
+    //const hasCloudtrailNoGlobalInAlertArray = alertArray.indexOf('cloudtrail-no-global-trails') >= 0;
+    //if (!counterForGlobalTrails && hasCloudtrailNoGlobalInAlertArray) {
+    if (!counterForGlobalTrails) {
         regionArray.forEach(region => {
             violationCounter++;
             const noGlobalsMetadata = {
