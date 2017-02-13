@@ -120,8 +120,8 @@ coreo_uni_util_jsrunner "cloudtrail-aggregate" do
   "number_violations_ignored":"COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.number_ignored_violations",
   "violations":COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.report}'
   function <<-EOH
-const alertArrayJSON = "${AUDIT_AWS_CLOUDTRAIL_REGIONS}";
-const regionArrayJSON = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
+const alertArrayJSON = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
+const regionArrayJSON = "${AUDIT_AWS_CLOUDTRAIL_REGIONS}";
 
 const alertArray = JSON.parse(alertArrayJSON.replace(/'/g, '"'));
 const regionArray = JSON.parse(regionArrayJSON.replace(/'/g, '"'));
@@ -145,6 +145,7 @@ function copyPropForNewJsonInput() {
 function copyViolationInNewJsonInput() {
     newJSONInput['violations'] = {};
     const regionKeys = Object.keys(json_input['violations']);
+    violationCounter = json_input['number_of_violations'];
     regionKeys.forEach(regionKey => {
         newJSONInput['violations'][regionKey] = {};
         const objectIdKeys = Object.keys(json_input['violations'][regionKey]);
@@ -153,7 +154,7 @@ function copyViolationInNewJsonInput() {
             if (hasCloudtrailWithGlobal) {
                 counterForGlobalTrails++;
             } else {
-                violationCounter++;
+                //violationCounter++;
                 newJSONInput['violations'][regionKey][objectIdKey] = json_input['violations'][regionKey][objectIdKey];
             }
         });
