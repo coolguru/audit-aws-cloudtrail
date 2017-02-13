@@ -11,11 +11,6 @@ variables:
         required: false
         type: string
         default:
-    AUDIT_AWS_CLOUDTRAIL_OWNER_TAG:
-        description: "Enter an AWS tag whose value is an email address of the owner of the Cloudtrail object. (Optional)"
-        required: false
-        type: string
-        default: "NOT_A_TAG"
     AUDIT_AWS_CLOUDTRAIL_SEND_ON:
         description: "Send reports always or only when there is a change? Options - always / change. Default is change."
         required: true
