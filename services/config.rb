@@ -240,6 +240,8 @@ coreo_uni_util_jsrunner "cloudtrail-tags-to-notifiers-array" do
                 "violations": COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return}'
   function <<-EOH
 
+  
+
 function setTableAndSuppression() {
   let table;
   let suppression;
@@ -250,17 +252,17 @@ function setTableAndSuppression() {
       suppression = yaml.safeLoad(fs.readFileSync('./suppression.yaml', 'utf8'));
   } catch (e) {
       console.log(`Error reading suppression.yaml file: ${e}`);
-      suppression = {};  
+      suppression = {};
   }
   try {
       table = yaml.safeLoad(fs.readFileSync('./table.yaml', 'utf8'));
   } catch (e) {
       console.log(`Error reading table.yaml file: ${e}`);
-      table = {};  
+      table = {};
   }
   coreoExport('table', JSON.stringify(table));
-  coreoExport('suppression', JSON.stringify(table));
-  
+  coreoExport('suppression', JSON.stringify(suppression));
+
   let alertListToJSON = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
   let alertListArray = alertListToJSON.replace(/'/g, '"');
   json_input['alert list'] = alertListArray || [];
@@ -277,7 +279,7 @@ const ALLOW_EMPTY = "${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}";
 const SEND_ON = "${AUDIT_AWS_CLOUDTRAIL_SEND_ON}";
 const SHOWN_NOT_SORTED_VIOLATIONS_COUNTER = false;
 
-const VARIABLES = { NO_OWNER_EMAIL, OWNER_TAG, 
+const VARIABLES = { NO_OWNER_EMAIL, OWNER_TAG,
   ALLOW_EMPTY, SEND_ON, SHOWN_NOT_SORTED_VIOLATIONS_COUNTER};
 
 const CloudCoreoJSRunner = require('cloudcoreo-jsrunner-commons');
@@ -285,6 +287,13 @@ const AuditCLOUDTRAIL = new CloudCoreoJSRunner(JSON_INPUT, VARIABLES);
 const notifiers = AuditCLOUDTRAIL.getNotifiers();
 callback(notifiers);
   EOH
+end
+
+coreo_uni_util_variables "update-planwide-3" do
+  action :set
+  variables([
+                {'COMPOSITE::coreo_uni_util_variables.planwide.table' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-to-notifiers-array.table'}
+          ])
 end
 
 coreo_uni_util_jsrunner "cloudtrail-tags-rollup" do
