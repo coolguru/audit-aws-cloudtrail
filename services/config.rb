@@ -191,7 +191,7 @@ function setValueForNewJSONInput(region, noGlobalsMetadata, noGlobalsAlert) {
     regionKeys.forEach(regionKey => {
         if (newJSONInput['violations'][regionKey]) {
             if (newJSONInput['violations'][regionKey][region]) {
-                newJSONInput['violations'][regionKey][region]['violations']['no-global-trails'] = noGlobalsMetadata;
+                newJSONInput['violations'][regionKey][region]['violations']['cloudtrail-no-global-trails'] = noGlobalsMetadata;
             } else {
                 newJSONInput['violations'][regionKey][region] = noGlobalsAlert;
             }
