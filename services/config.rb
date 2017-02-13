@@ -283,9 +283,9 @@ function setTableAndSuppression() {
     
     let alertListToJSON = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
     let alertListArray = alertListToJSON.replace(/'/g, '"');
-    json_input['alert list'] = alertListArray || [];
-    json_input['suppression'] = suppression || [];
-    json_input['table'] = table || {};
+    json_input['alert list'] = [] || alertListArray ;
+    json_input['suppression'] = [] || suppression ;
+    json_input['table'] = {} || table ;
   })
   
 
