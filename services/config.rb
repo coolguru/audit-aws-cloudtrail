@@ -202,6 +202,7 @@ function setValueForNewJSONInput(region, noGlobalsMetadata, noGlobalsAlert) {
             newJSONInput['violations'][regionKey] = {};
             newJSONInput['violations'][regionKey][region] = {};
             newJSONInput['violations'][regionKey][region]['violations'] = {};
+            newJSONInput['violations'][regionKey][region]['tags'] = [];
             newJSONInput['violations'][regionKey][region]['violations']['cloudtrail-no-global-trails'] = noGlobalsMetadata;
         }
     });
