@@ -120,13 +120,13 @@ coreo_uni_util_jsrunner "cloudtrail-aggregate" do
   "number_violations_ignored":"COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.number_ignored_violations",
   "violations":COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.report}'
   function <<-EOH
-const alertArrayJSON = "${AUDIT_AWS_CLOUDTRAIL_REGIONS}";
-const regionArrayJSON = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
+const alertArrayJSON = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
+const regionArrayJSON = "${AUDIT_AWS_CLOUDTRAIL_REGIONS}";
 
 const alertArray = JSON.parse(alertArrayJSON.replace(/'/g, '"'));
 const regionArray = JSON.parse(regionArrayJSON.replace(/'/g, '"'));
 
-let counterForGlobalViolation = 0;
+let counterForGlobalTrails = 0;
 let violationCounter = 0;
 
 function createJSONInputWithNoGlobalTrails() {
@@ -145,15 +145,16 @@ function copyPropForNewJsonInput() {
 function copyViolationInNewJsonInput() {
     newJSONInput['violations'] = {};
     const regionKeys = Object.keys(json_input['violations']);
+    violationCounter = json_input['number_of_violations'];
     regionKeys.forEach(regionKey => {
         newJSONInput['violations'][regionKey] = {};
         const objectIdKeys = Object.keys(json_input['violations'][regionKey]);
         objectIdKeys.forEach(objectIdKey => {
             const hasCloudtrailWithGlobal = json_input['violations'][regionKey][objectIdKey]['violations']['cloudtrail-trail-with-global'];
             if (hasCloudtrailWithGlobal) {
-                counterForGlobalViolation++;
+                counterForGlobalTrails++;
             } else {
-                violationCounter++;
+                //violationCounter++;
                 newJSONInput['violations'][regionKey][objectIdKey] = json_input['violations'][regionKey][objectIdKey];
             }
         });
@@ -161,8 +162,9 @@ function copyViolationInNewJsonInput() {
 }
 
 function createNoGlobalTrailViolation() {
-    const hasCloudtrailNoGlobalInAlertArray = alertArray.indexOf('cloudtrail-no-global-trails') >= 0;
-    if (counterForGlobalViolation && hasCloudtrailNoGlobalInAlertArray) {
+    //const hasCloudtrailNoGlobalInAlertArray = alertArray.indexOf('cloudtrail-no-global-trails') >= 0;
+    //if (!counterForGlobalTrails && hasCloudtrailNoGlobalInAlertArray) {
+    if (!counterForGlobalTrails) {
         regionArray.forEach(region => {
             violationCounter++;
             const noGlobalsMetadata = {
@@ -176,7 +178,7 @@ function createNoGlobalTrailViolation() {
                 'region': region
             };
             const noGlobalsAlert = {
-                violations: {'no-global-trails': noGlobalsMetadata },
+                violations: {'cloudtrail-no-global-trails': noGlobalsMetadata },
                 tags: []
             };
             setValueForNewJSONInput(region, noGlobalsMetadata, noGlobalsAlert);
@@ -186,13 +188,22 @@ function createNoGlobalTrailViolation() {
 
 function setValueForNewJSONInput(region, noGlobalsMetadata, noGlobalsAlert) {
     const regionKeys = Object.keys(newJSONInput['violations'][region]);
+    var found = false;
     regionKeys.forEach(regionKey => {
         if (newJSONInput['violations'][regionKey]) {
+            found = true;
             if (newJSONInput['violations'][regionKey][region]) {
-                newJSONInput['violations'][regionKey][region]['violations']['no-global-trails'] = noGlobalsMetadata;
+                newJSONInput['violations'][regionKey][region]['violations']['cloudtrail-no-global-trails'] = noGlobalsMetadata;
             } else {
                 newJSONInput['violations'][regionKey][region] = noGlobalsAlert;
             }
+        }
+        if (!found) {
+            newJSONInput['violations'][regionKey] = {};
+            newJSONInput['violations'][regionKey][region] = {};
+            newJSONInput['violations'][regionKey][region]['violations'] = {};
+            newJSONInput['violations'][regionKey][region]['tags'] = [];
+            newJSONInput['violations'][regionKey][region]['violations']['cloudtrail-no-global-trails'] = noGlobalsMetadata;
         }
     });
 }
@@ -251,14 +262,14 @@ function setTableAndSuppression() {
   try {
       suppression = yaml.safeLoad(fs.readFileSync('./suppression.yaml', 'utf8'));
   } catch (e) {
-      console.log(`Error reading suppression.yaml file: ${e}`);
-      suppression = {};
+      console.log("Error reading suppression.yaml file");
+      suppression = {};  
   }
   try {
       table = yaml.safeLoad(fs.readFileSync('./table.yaml', 'utf8'));
   } catch (e) {
-      console.log(`Error reading table.yaml file: ${e}`);
-      table = {};
+      console.log("Error reading table.yaml file");
+      table = {};  
   }
   coreoExport('table', JSON.stringify(table));
   coreoExport('suppression', JSON.stringify(suppression));
