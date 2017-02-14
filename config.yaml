@@ -45,4 +45,3 @@ variables:
         required: true
         type: boolean
         default: false
-
