@@ -187,7 +187,13 @@ function createNoGlobalTrailViolation() {
 }
 
 function setValueForNewJSONInput(region, noGlobalsMetadata, noGlobalsAlert) {
-    var regionKeys = Object.keys(newJSONInput['violations'][region]);
+    try {
+          if (Object.keys(newJSONInput['violations'][region])) {};
+      } catch (e) {
+          newJSONInput['violations'] = {};
+          newJSONInput['violations'][region] = {}
+      }
+    const regionKeys = Object.keys(newJSONInput['violations'][region]);
     var found = false;
     regionKeys.forEach(regionKey => {
         if (newJSONInput['violations'][regionKey]) {
