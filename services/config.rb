@@ -285,6 +285,10 @@ const VARIABLES = { NO_OWNER_EMAIL, OWNER_TAG,
 const CloudCoreoJSRunner = require('cloudcoreo-jsrunner-commons');
 const AuditCLOUDTRAIL = new CloudCoreoJSRunner(JSON_INPUT, VARIABLES);
 const notifiers = AuditCLOUDTRAIL.getNotifiers();
+
+const JSONReportAfterGeneratingSuppression = AuditCLOUDTRAIL.getJSONForAuditPanel();
+coreoExport('JSONReport', JSON.stringify(JSONReportAfterGeneratingSuppression));
+
 callback(notifiers);
   EOH
 end
@@ -292,6 +296,7 @@ end
 coreo_uni_util_variables "update-planwide-3" do
   action :set
   variables([
+                {'COMPOSITE::coreo_uni_util_variables.planwide.results' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-to-notifiers-array.JSONReport'},
                 {'COMPOSITE::coreo_uni_util_variables.planwide.table' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-to-notifiers-array.table'}
           ])
 end
