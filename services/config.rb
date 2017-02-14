@@ -190,7 +190,6 @@ function setValueForNewJSONInput(region, noGlobalsMetadata, noGlobalsAlert) {
     try {
           if (Object.keys(newJSONInput['violations'][region])) {};
       } catch (e) {
-          newJSONInput['violations'] = {};
           newJSONInput['violations'][region] = {}
       }
     const regionKeys = Object.keys(newJSONInput['violations'][region]);
