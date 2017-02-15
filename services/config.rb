@@ -245,7 +245,7 @@ coreo_uni_util_jsrunner "cloudtrail-tags-to-notifiers-array" do
   packages([
                {
                    :name => "cloudcoreo-jsrunner-commons",
-                   :version => "1.8.2"
+                   :version => "1.8.3"
                },
                {
                    :name => "js-yaml",
