@@ -321,7 +321,7 @@ coreo_uni_util_jsrunner "cloudtrail-tags-rollup" do
   action :run
   data_type "text"
   json_input 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-to-notifiers-array.return'
-  function <<-EOH
+  function <<-"EOH"
 
 var test1 = "COMPOSITE::coreo_uni_util_variables.planwide.table";
 var test2 = "${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}";
@@ -335,12 +335,12 @@ function setTextRollup() {
         const hasEmail = notifier['endpoint']['to'].length;
         if(hasEmail) {
             numberOfViolations += parseInt(notifier['num_violations']);
-            emailText += "recipient: " + notifier['endpoint']['to'] + " - " + "Violations: " + notifier['num_violations'] + "\\n";
+            emailText += "recipient: " + notifier['endpoint']['to'] + " - " + "Violations: " + notifier['num_violations'] + "\n";
         }
     });
 
-    textRollup += 'Number of Violating Cloud Objects: ' + numberOfViolations + "\\n";
-    textRollup += 'Rollup' + "\\n";
+    textRollup += 'Number of Violating Cloud Objects: ' + numberOfViolations + "\n";
+    textRollup += 'Rollup' + "\n";
     textRollup += emailText;
 }
 
