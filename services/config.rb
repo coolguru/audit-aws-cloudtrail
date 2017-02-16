@@ -1,3 +1,4 @@
+# user-visible engine-powered rule definitions
 
 coreo_aws_rule "cloudtrail-inventory" do
   action :define
@@ -35,7 +36,7 @@ coreo_aws_rule "cloudtrail-service-disabled" do
   id_map "stack.current_region"
 end
 
-# the jsrunner puts cloudtrail in for the service
+# TODO: rules that are service=user should not require objectives,audit_objects,operators,raise_when,id_map
 
 coreo_aws_rule "cloudtrail-no-global-trails" do
   action :define
@@ -54,6 +55,8 @@ coreo_aws_rule "cloudtrail-no-global-trails" do
   id_map ""
 end
 
+# end of user-visible content. Remaining resources are system-defined
+
 coreo_aws_rule "cloudtrail-trail-with-global" do
   action :define
   service :cloudtrail
@@ -71,22 +74,41 @@ coreo_aws_rule "cloudtrail-trail-with-global" do
   id_map "stack.current_region"
 end
 
-coreo_uni_util_jsrunner "cloudtrail-form-advisor-rule-list" do
-  action :run
-  json_input '{}'
-  function <<-EOH
-    var user_specified_rules = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
-    user_specified_rules = user_specified_rules.replace(/\\]/, ",'cloudtrail-trail-with-global']");
-    coreoExport('rule_list_for_advisor', user_specified_rules);
-    callback();
-  EOH
+# cross-resource variable holder
+
+# TODO: plan vars for team (name/id) and cloud account (name/id)
+#list of available plan variables
+# run_id
+# revision
+# branch
+# id
+# name
+# stack_name
+# region
+
+coreo_uni_util_variables "planwide" do
+  action :set
+  variables([
+                {'COMPOSITE::coreo_uni_util_variables.planwide.composite_name' => 'PLAN::stack_name'},
+                {'COMPOSITE::coreo_uni_util_variables.planwide.plan_name' => 'PLAN::name'},
+                {'COMPOSITE::coreo_uni_util_variables.planwide.results' => 'unset'},
+                {'COMPOSITE::coreo_uni_util_variables.planwide.number_violations' => 'unset'}
+            ])
 end
 
 coreo_aws_rule_runner_cloudtrail "advise-cloudtrail" do
   action :run
-  rules ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}
-  #alerts COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-form-advisor-rule-list.rule_list_for_advisor
+  rules(${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}.push("cloudtrail-trail-with-global"))
   regions ${AUDIT_AWS_CLOUDTRAIL_REGIONS}
+end
+
+coreo_uni_util_variables "update-planwide-1" do
+  action :set
+  variables([
+                {'COMPOSITE::coreo_uni_util_variables.planwide.results' => 'COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.report'},
+                {'COMPOSITE::coreo_uni_util_variables.planwide.number_violations' => 'COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.number_violations'},
+
+            ])
 end
 
 coreo_uni_util_jsrunner "cloudtrail-aggregate" do
@@ -98,49 +120,56 @@ coreo_uni_util_jsrunner "cloudtrail-aggregate" do
   "number_violations_ignored":"COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.number_ignored_violations",
   "violations":COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.report}'
   function <<-EOH
-var_regions = "${AUDIT_AWS_CLOUDTRAIL_REGIONS}";
-var_alerts = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
+const alertArrayJSON = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
+const regionArrayJSON = "${AUDIT_AWS_CLOUDTRAIL_REGIONS}";
 
-let alertArrayJSON =  var_alerts;
-let alertArray = alertArrayJSON.replace(/'/g, '"');
-alertArray = JSON.parse(alertArray);
+const alertArray = JSON.parse(alertArrayJSON.replace(/'/g, '"'));
+const regionArray = JSON.parse(regionArrayJSON.replace(/'/g, '"'));
 
-let regionArrayJSON =  var_regions;
-let regionArray = regionArrayJSON.replace(/'/g, '"');
-regionArray = JSON.parse(regionArray);
-let createRegionStr = '';
-regionArray.forEach(region=> {
-    createRegionStr+= region + ' ';
-});
-var result = {};
-result['composite name'] = json_input['composite name'];
-result['plan name'] = json_input['plan name'];
-result['regions'] = var_regions;
-result['violations'] = {};
-var nRegionsWithGlobal = 0;
-var nViolations = 0;
-for(var region in json_input['violations']) {
-    result['violations'][region] = {};
-    for (var key in json_input['violations'][region]) {
-        if (json_input['violations'][region].hasOwnProperty(key)) {
-            if (json_input['violations'][region][key]['violations']['cloudtrail-trail-with-global']) {
-                nRegionsWithGlobal++;
-            } else {
-                nViolations++;
-                result['violations'][region][key] = json_input['violations'][region][key];
-            }
-        }
-    }
+let counterForGlobalTrails = 0;
+let violationCounter = 0;
+
+function createJSONInputWithNoGlobalTrails() {
+    copyViolationInNewJsonInput();
+    createNoGlobalTrailViolation();
+    copyPropForNewJsonInput();
 }
-var noGlobalsAlert = {};
-if (nRegionsWithGlobal == 0) {
-    console.log(regionArray);
-    regionArray.forEach(region => {
-        nViolations++;
-        noGlobalsMetadata =
-            {
+
+function copyPropForNewJsonInput() {
+    newJSONInput['composite name'] = json_input['composite name'];
+    newJSONInput['plan name'] = json_input['plan name'];
+    newJSONInput['regions'] = regionArrayJSON;
+    newJSONInput['number_of_violations'] = violationCounter;
+}
+
+function copyViolationInNewJsonInput() {
+    newJSONInput['violations'] = {};
+    const regionKeys = Object.keys(json_input['violations']);
+    violationCounter = json_input['number_of_violations'];
+    regionKeys.forEach(regionKey => {
+        newJSONInput['violations'][regionKey] = {};
+        const objectIdKeys = Object.keys(json_input['violations'][regionKey]);
+        objectIdKeys.forEach(objectIdKey => {
+            const hasCloudtrailWithGlobal = json_input['violations'][regionKey][objectIdKey]['violations']['cloudtrail-trail-with-global'];
+            if (hasCloudtrailWithGlobal) {
+                counterForGlobalTrails++;
+            } else {
+                //violationCounter++;
+                newJSONInput['violations'][regionKey][objectIdKey] = json_input['violations'][regionKey][objectIdKey];
+            }
+        });
+    });
+}
+
+function createNoGlobalTrailViolation() {
+    //const hasCloudtrailNoGlobalInAlertArray = alertArray.indexOf('cloudtrail-no-global-trails') >= 0;
+    //if (!counterForGlobalTrails && hasCloudtrailNoGlobalInAlertArray) {
+    if (!counterForGlobalTrails) {
+        regionArray.forEach(region => {
+            violationCounter++;
+            const noGlobalsMetadata = {
                 'service': 'cloudtrail',
-                'link' : 'http://kb.cloudcoreo.com/mydoc_cloudtrail-trail-with-global.html',
+                'link': 'http://kb.cloudcoreo.com/mydoc_cloudtrail-trail-with-global.html',
                 'display_name': 'Cloudtrail global logging is disabled',
                 'description': 'CloudTrail global service logging is not enabled for the selected regions.',
                 'category': 'Audit',
@@ -148,27 +177,58 @@ if (nRegionsWithGlobal == 0) {
                 'level': 'Warning',
                 'region': region
             };
-        noGlobalsAlert =
-            { violations:
-                { 'cloudtrail-no-global-trails':
-                noGlobalsMetadata
-                },
+            const noGlobalsAlert = {
+                violations: {'cloudtrail-no-global-trails': noGlobalsMetadata },
                 tags: []
             };
-        var key = 'selected regions';
-        console.log(result['violations'][region]);
-        if (result['violations'][region]) {
-          if (result['violations'][region][region]) {
-              result['violations'][region][region]['violations']['cloudtrail-no-global-trails'] = noGlobalsMetadata;
-          } else {
-              result['violations'][region][region] = noGlobalsAlert;
-          }
+            setValueForNewJSONInput(region, noGlobalsMetadata, noGlobalsAlert);
+        });
+    }
+}
+
+function setValueForNewJSONInput(region, noGlobalsMetadata, noGlobalsAlert) {
+    try {
+          if (Object.keys(newJSONInput['violations'][region])) {};
+      } catch (e) {
+          newJSONInput['violations'][region] = {}
+      }
+    const regionKeys = Object.keys(newJSONInput['violations'][region]);
+    var found = false;
+    regionKeys.forEach(regionKey => {
+        if (newJSONInput['violations'][regionKey]) {
+            found = true;
+            if (newJSONInput['violations'][regionKey][region]) {
+                newJSONInput['violations'][regionKey][region]['violations']['cloudtrail-no-global-trails'] = noGlobalsMetadata;
+            } else {
+                newJSONInput['violations'][regionKey][region] = noGlobalsAlert;
+            }
+        }
+        if (!found) {
+            newJSONInput['violations'][regionKey] = {};
+            newJSONInput['violations'][regionKey][region] = {};
+            newJSONInput['violations'][regionKey][region]['violations'] = {};
+            newJSONInput['violations'][regionKey][region]['tags'] = [];
+            newJSONInput['violations'][regionKey][region]['violations']['cloudtrail-no-global-trails'] = noGlobalsMetadata;
         }
     });
 }
-result['number_of_violations'] = nViolations;
-callback(result['violations']);
+
+const newJSONInput = {};
+
+createJSONInputWithNoGlobalTrails();
+coreoExport('violation_counter', violationCounter);
+
+callback(newJSONInput['violations']);
   EOH
+end
+
+coreo_uni_util_variables "update-planwide-2" do
+  action :set
+  variables([
+                {'COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'},
+                {'COMPOSITE::coreo_uni_util_variables.planwide.results' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'},
+                {'COMPOSITE::coreo_uni_util_variables.planwide.number_violations' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.violation_counter'}
+            ])
 end
 
 coreo_uni_util_variables "cloudtrail-update-advisor-output" do
@@ -178,189 +238,56 @@ coreo_uni_util_variables "cloudtrail-update-advisor-output" do
             ])
 end
 
-coreo_uni_util_jsrunner "jsrunner-process-suppression-cloudtrail" do
-  action :run
-  provide_composite_access true
-  json_input '{ "composite name":"PLAN::stack_name",
-                "plan name":"PLAN::name",
-                "violations": COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return}'
-  packages([
-               {
-                   :name => "js-yaml",
-                   :version => "3.7.0"
-               }       ])
-  function <<-EOH
-  const fs = require('fs');
-  const yaml = require('js-yaml');
-  let suppression;
-  try {
-      suppression = yaml.safeLoad(fs.readFileSync('./suppression.yaml', 'utf8'));
-  } catch (e) {
-      console.log(`Error reading suppression.yaml file: ${e}`);
-      suppression = {};
-  }
-  coreoExport('suppression', JSON.stringify(suppression));
-  function createViolationWithSuppression(result) {
-      const regionKeys = Object.keys(violations);
-      regionKeys.forEach(regionKey => {
-          result[regionKey] = {};
-          const objectIdKeys = Object.keys(violations[regionKey]);
-          objectIdKeys.forEach(objectIdKey => {
-              createObjectId(regionKey, objectIdKey);
-          });
-      });
-  }
-  
-  function createObjectId(regionKey, objectIdKey) {
-      const wayToResultObjectId = result[regionKey][objectIdKey] = {};
-      const wayToViolationObjectId = violations[regionKey][objectIdKey];
-      wayToResultObjectId.tags = wayToViolationObjectId.tags;
-      wayToResultObjectId.violations = {};
-      createSuppression(wayToViolationObjectId, regionKey, objectIdKey);
-  }
-  
-  
-  function createSuppression(wayToViolationObjectId, regionKey, violationObjectIdKey) {
-      const ruleKeys = Object.keys(wayToViolationObjectId['violations']);
-      ruleKeys.forEach(violationRuleKey => {
-          result[regionKey][violationObjectIdKey].violations[violationRuleKey] = wayToViolationObjectId['violations'][violationRuleKey];
-          Object.keys(suppression).forEach(suppressRuleKey => {
-              suppression[suppressRuleKey].forEach(suppressionObject => {
-                  Object.keys(suppressionObject).forEach(suppressObjectIdKey => {
-                      setDateForSuppression(
-                          suppressionObject, suppressObjectIdKey,
-                          violationRuleKey, suppressRuleKey,
-                          violationObjectIdKey, regionKey
-                      );
-                  });
-              });
-          });
-      });
-  }
-  
-  
-  function setDateForSuppression(
-      suppressionObject, suppressObjectIdKey,
-      violationRuleKey, suppressRuleKey,
-      violationObjectIdKey, regionKey
-  ) {
-      file_date = null;
-      let suppressDate = suppressionObject[suppressObjectIdKey];
-      const areViolationsEqual = violationRuleKey === suppressRuleKey && violationObjectIdKey === suppressObjectIdKey;
-      if (areViolationsEqual) {
-          const nowDate = new Date();
-          const correctDateSuppress = getCorrectSuppressDate(suppressDate);
-          const isSuppressionDate = nowDate <= correctDateSuppress;
-          if (isSuppressionDate) {
-              setSuppressionProp(regionKey, violationObjectIdKey, violationRuleKey, file_date);
-          } else {
-              setSuppressionExpired(regionKey, violationObjectIdKey, violationRuleKey, file_date);
-          }
-      }
-  }
-  
-  
-  function getCorrectSuppressDate(suppressDate) {
-      const hasSuppressionDate = suppressDate !== '';
-      if (hasSuppressionDate) {
-          file_date = suppressDate;
-      } else {
-          suppressDate = new Date();
-      }
-      let correctDateSuppress = new Date(suppressDate);
-      if (isNaN(correctDateSuppress.getTime())) {
-          correctDateSuppress = new Date(0);
-      }
-      return correctDateSuppress;
-  }
-  
-  
-  function setSuppressionProp(regionKey, objectIdKey, violationRuleKey, file_date) {
-      const wayToViolationObject = result[regionKey][objectIdKey].violations[violationRuleKey];
-      wayToViolationObject["suppressed"] = true;
-      if (file_date != null) {
-          wayToViolationObject["suppression_until"] = file_date;
-          wayToViolationObject["suppression_expired"] = false;
-      }
-  }
-  
-  function setSuppressionExpired(regionKey, objectIdKey, violationRuleKey, file_date) {
-      if (file_date !== null) {
-          result[regionKey][objectIdKey].violations[violationRuleKey]["suppression_until"] = file_date;
-          result[regionKey][objectIdKey].violations[violationRuleKey]["suppression_expired"] = true;
-      } else {
-          result[regionKey][objectIdKey].violations[violationRuleKey]["suppression_expired"] = false;
-      }
-      result[regionKey][objectIdKey].violations[violationRuleKey]["suppressed"] = false;
-  }
-  
-  const violations = json_input['violations'];
-  const result = {};
-  createViolationWithSuppression(result, json_input);
-  callback(result);
-  EOH
-end
-
-coreo_uni_util_variables "cloudtrail-suppression-update-advisor-output" do
-  action :set
-  variables([
-                {'COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.jsrunner-process-suppression-cloudtrail.return'}
-            ])
-end
-
-coreo_uni_util_jsrunner "jsrunner-process-table-cloudtrail" do
-  action :run
-  provide_composite_access true
-  json_input 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'
-  packages([
-               {
-                   :name => "js-yaml",
-                   :version => "3.7.0"
-               }       ])
-  function <<-EOH
-    var fs = require('fs');
-    var yaml = require('js-yaml');
-    try {
-        var table = yaml.safeLoad(fs.readFileSync('./table.yaml', 'utf8'));
-    } catch (e) {
-    }
-    coreoExport('table', JSON.stringify(table));
-    callback(table);
-  EOH
-end
-
-
-coreo_uni_util_jsrunner "jsrunner-process-alert-list-cloudtrail" do
-  action :run
-  provide_composite_access true
-  json_input '{"violations":COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.report}'
-  packages([
-               {
-                   :name => "js-yaml",
-                   :version => "3.7.0"
-               }       ])
-  function <<-EOH
-    let alertListToJSON = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
-    let alertListArray = alertListToJSON.replace(/'/g, '"');
-    callback(alertListArray);
-  EOH
-end
-
 coreo_uni_util_jsrunner "cloudtrail-tags-to-notifiers-array" do
   action :run
   data_type "json"
+  provide_composite_access true
   packages([
-        {
-          :name => "cloudcoreo-jsrunner-commons",
-          :version => "1.7.8"
-        }       ])
+               {
+                   :name => "cloudcoreo-jsrunner-commons",
+                   :version => "1.8.3"
+               },
+               {
+                   :name => "js-yaml",
+                   :version => "3.7.0"
+               } ])
   json_input '{ "composite name":"PLAN::stack_name",
                 "plan name":"PLAN::name",
-                "alert list": COMPOSITE::coreo_uni_util_jsrunner.jsrunner-process-alert-list-cloudtrail.return,
-                "table": COMPOSITE::coreo_uni_util_jsrunner.jsrunner-process-table-cloudtrail.return,
-                "violations": COMPOSITE::coreo_uni_util_jsrunner.jsrunner-process-suppression-cloudtrail.return}'
+                "violations": COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return}'
   function <<-EOH
+
   
+
+function setTableAndSuppression() {
+  let table;
+  let suppression;
+
+  const fs = require('fs');
+  const yaml = require('js-yaml');
+  try {
+      suppression = yaml.safeLoad(fs.readFileSync('./suppression.yaml', 'utf8'));
+  } catch (e) {
+      console.log("Error reading suppression.yaml file");
+      suppression = {};  
+  }
+  try {
+      table = yaml.safeLoad(fs.readFileSync('./table.yaml', 'utf8'));
+  } catch (e) {
+      console.log("Error reading table.yaml file");
+      table = {};  
+  }
+  coreoExport('table', JSON.stringify(table));
+  coreoExport('suppression', JSON.stringify(suppression));
+
+  let alertListToJSON = "${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}";
+  let alertListArray = alertListToJSON.replace(/'/g, '"');
+  json_input['alert list'] = alertListArray || [];
+  json_input['suppression'] = suppression || [];
+  json_input['table'] = table || {};
+}
+
+setTableAndSuppression();
+
 const JSON_INPUT = json_input;
 const NO_OWNER_EMAIL = "${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}";
 const OWNER_TAG = "${AUDIT_AWS_CLOUDTRAIL_OWNER_TAG}";
@@ -368,15 +295,26 @@ const ALLOW_EMPTY = "${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}";
 const SEND_ON = "${AUDIT_AWS_CLOUDTRAIL_SEND_ON}";
 const SHOWN_NOT_SORTED_VIOLATIONS_COUNTER = false;
 
-
-const VARIABLES = { NO_OWNER_EMAIL, OWNER_TAG, 
+const VARIABLES = { NO_OWNER_EMAIL, OWNER_TAG,
   ALLOW_EMPTY, SEND_ON, SHOWN_NOT_SORTED_VIOLATIONS_COUNTER};
 
 const CloudCoreoJSRunner = require('cloudcoreo-jsrunner-commons');
 const AuditCLOUDTRAIL = new CloudCoreoJSRunner(JSON_INPUT, VARIABLES);
 const notifiers = AuditCLOUDTRAIL.getNotifiers();
+
+const JSONReportAfterGeneratingSuppression = AuditCLOUDTRAIL.getJSONForAuditPanel();
+coreoExport('JSONReport', JSON.stringify(JSONReportAfterGeneratingSuppression));
+
 callback(notifiers);
-EOH
+  EOH
+end
+
+coreo_uni_util_variables "update-planwide-3" do
+  action :set
+  variables([
+                {'COMPOSITE::coreo_uni_util_variables.planwide.results' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-to-notifiers-array.JSONReport'},
+                {'COMPOSITE::coreo_uni_util_variables.planwide.table' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-to-notifiers-array.table'}
+          ])
 end
 
 coreo_uni_util_jsrunner "cloudtrail-tags-rollup" do
@@ -384,33 +322,40 @@ coreo_uni_util_jsrunner "cloudtrail-tags-rollup" do
   data_type "text"
   json_input 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-to-notifiers-array.return'
   function <<-EOH
-var rollup_string = "";
-let rollup = '';
-let emailText = '';
-let numberOfViolations = 0;
-for (var entry=0; entry < json_input.length; entry++) {
-    if (json_input[entry]['endpoint']['to'].length) {
-        numberOfViolations += parseInt(json_input[entry]['num_violations']);
-        emailText += "recipient: " + json_input[entry]['endpoint']['to'] + " - " + "Violations: " + json_input[entry]['num_violations'] + "\\n";
-    }
+
+const notifiers = json_input;
+
+function setTextRollup() {
+    let emailText = '';
+    let numberOfViolations = 0;
+    notifiers.forEach(notifier => {
+        const hasEmail = notifier['endpoint']['to'].length;
+        if(hasEmail) {
+            numberOfViolations += parseInt(notifier['num_violations']);
+            emailText += "recipient: " + notifier['endpoint']['to'] + " - " + "Violations: " + notifier['num_violations'] + "\\n";
+        }
+    });
+
+    textRollup += 'Number of Violating Cloud Objects: ' + numberOfViolations + "\\n";
+    textRollup += 'Rollup' + "\\n";
+    textRollup += emailText;
 }
 
-rollup += 'number of Violations: ' + numberOfViolations + "\\n";
-rollup += 'Rollup' + "\\n";
-rollup += emailText;
 
-rollup_string = rollup;
-callback(rollup_string);
-EOH
+let textRollup = '';
+setTextRollup();
+
+callback(textRollup);
+  EOH
 end
 
 coreo_uni_util_notify "advise-cloudtrail-to-tag-values" do
-  action :${AUDIT_AWS_CLOUDTRAIL_HTML_REPORT}
+  action((("${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}".length > 0)) ? :notify : :nothing)
   notifiers 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-to-notifiers-array.return'
 end
 
 coreo_uni_util_notify "advise-cloudtrail-rollup" do
-  action :${AUDIT_AWS_CLOUDTRAIL_ROLLUP_REPORT}
+  action((("${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}".length > 0) and (! "${AUDIT_AWS_CLOUDTRAIL_OWNER_TAG}".eql?("NOT_A_TAG"))) ? :notify : :nothing)
   type 'email'
   allow_empty ${AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY}
   send_on '${AUDIT_AWS_CLOUDTRAIL_SEND_ON}'
@@ -421,7 +366,6 @@ COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-rollup.return
   '
   payload_type 'text'
   endpoint ({
-      :to => '${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}', :subject => 'CloudCoreo cloudtrail rule results on PLAN::stack_name :: PLAN::name'
+      :to => '${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}', :subject => 'PLAN::stack_name New Rollup Report for PLAN::name plan from CloudCoreo'
   })
 end
-
