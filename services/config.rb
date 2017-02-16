@@ -321,10 +321,10 @@ coreo_uni_util_jsrunner "cloudtrail-tags-rollup" do
   action :run
   data_type "text"
   json_input 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-to-notifiers-array.return'
-  function <<-"EOH"
+  function <<-'EOH'
 
-var test1 = "COMPOSITE::coreo_uni_util_variables.planwide.table";
-var test2 = "${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}";
+var test1 = 'COMPOSITE::coreo_uni_util_variables.planwide.table';
+var test2 = '${AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT}';
 
 const notifiers = json_input;
 
