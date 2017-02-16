@@ -19,6 +19,10 @@ This repo is designed to work with CloudCoreo. It will monitor CloudTrail agains
 
 ## Required variables with default
 
+### `AUDIT_AWS_CLOUDTRAIL_REGIONS`:
+  * description: List of AWS regions to check. Default is all regions. Choices are us-east-1,us-east-2,us-west-1,us-west-2,ca-central-1,ap-south-1,ap-northeast-2,ap-southeast-1,ap-southeast-2,ap-northeast-1,eu-central-1,eu-west-1,eu-west-1,sa-east-1
+  * default: us-east-1, us-east-2, us-west-1, us-west-2, ca-central-1, ap-south-1, ap-northeast-2, ap-southeast-1, ap-southeast-2, ap-northeast-1, eu-central-1, eu-west-1, eu-west-2, sa-east-1
+
 ### `AUDIT_AWS_CLOUDTRAIL_SEND_ON`:
   * description: Send reports always or only when there is a change? Options - always / change. Default is change.
   * default: change
@@ -26,10 +30,6 @@ This repo is designed to work with CloudCoreo. It will monitor CloudTrail agains
 ### `AUDIT_AWS_CLOUDTRAIL_ALLOW_EMPTY`:
   * description: Would you like to receive empty reports? Options - true / false. Default is false.
   * default: false
-
-### `AUDIT_AWS_CLOUDTRAIL_REGIONS`:
-  * description: List of AWS regions to check. Default is all regions. Choices are us-east-1,us-east-2,us-west-1,us-west-2,ca-central-1,ap-south-1,ap-northeast-2,ap-southeast-1,ap-southeast-2,ap-northeast-1,eu-central-1,eu-west-1,eu-west-1,sa-east-1
-  * default: us-east-1, us-east-2, us-west-1, us-west-2, ca-central-1, ap-south-1, ap-northeast-2, ap-southeast-1, ap-southeast-2, ap-northeast-1, eu-central-1, eu-west-1, eu-west-2, sa-east-1
 
 
 ## Optional variables with default
