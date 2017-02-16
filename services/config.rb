@@ -86,13 +86,13 @@ end
 # stack_name
 # region
 
-coreo_uni_util_variables "planwide" do
+coreo_uni_util_variables "cloudtrail-planwide" do
   action :set
   variables([
-                {'COMPOSITE::coreo_uni_util_variables.planwide.composite_name' => 'PLAN::stack_name'},
-                {'COMPOSITE::coreo_uni_util_variables.planwide.plan_name' => 'PLAN::name'},
-                {'COMPOSITE::coreo_uni_util_variables.planwide.results' => 'unset'},
-                {'COMPOSITE::coreo_uni_util_variables.planwide.number_violations' => 'unset'}
+                {'COMPOSITE::coreo_uni_util_variables.cloudtrail-planwide.composite_name' => 'PLAN::stack_name'},
+                {'COMPOSITE::coreo_uni_util_variables.cloudtrail-planwide.plan_name' => 'PLAN::name'},
+                {'COMPOSITE::coreo_uni_util_variables.cloudtrail-planwide.results' => 'unset'},
+                {'COMPOSITE::coreo_uni_util_variables.cloudtrail-planwide.number_violations' => 'unset'}
             ])
 end
 
@@ -102,11 +102,11 @@ coreo_aws_rule_runner_cloudtrail "advise-cloudtrail" do
   regions ${AUDIT_AWS_CLOUDTRAIL_REGIONS}
 end
 
-coreo_uni_util_variables "update-planwide-1" do
+coreo_uni_util_variables "cloudtrail-update-planwide-1" do
   action :set
   variables([
-                {'COMPOSITE::coreo_uni_util_variables.planwide.results' => 'COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.report'},
-                {'COMPOSITE::coreo_uni_util_variables.planwide.number_violations' => 'COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.number_violations'},
+                {'COMPOSITE::coreo_uni_util_variables.cloudtrail-planwide.results' => 'COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.report'},
+                {'COMPOSITE::coreo_uni_util_variables.cloudtrail-planwide.number_violations' => 'COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.number_violations'},
 
             ])
 end
@@ -222,12 +222,12 @@ callback(newJSONInput['violations']);
   EOH
 end
 
-coreo_uni_util_variables "update-planwide-2" do
+coreo_uni_util_variables "cloudtrail-update-planwide-2" do
   action :set
   variables([
                 {'COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'},
-                {'COMPOSITE::coreo_uni_util_variables.planwide.results' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'},
-                {'COMPOSITE::coreo_uni_util_variables.planwide.number_violations' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.violation_counter'}
+                {'COMPOSITE::coreo_uni_util_variables.cloudtrail-planwide.results' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return'},
+                {'COMPOSITE::coreo_uni_util_variables.cloudtrail-planwide.number_violations' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.violation_counter'}
             ])
 end
 
@@ -309,11 +309,11 @@ callback(notifiers);
   EOH
 end
 
-coreo_uni_util_variables "update-planwide-3" do
+coreo_uni_util_variables "cloudtrail-update-planwide-3" do
   action :set
   variables([
-                {'COMPOSITE::coreo_uni_util_variables.planwide.results' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-to-notifiers-array.JSONReport'},
-                {'COMPOSITE::coreo_uni_util_variables.planwide.table' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-to-notifiers-array.table'}
+                {'COMPOSITE::coreo_uni_util_variables.cloudtrail-planwide.results' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-to-notifiers-array.JSONReport'},
+                {'COMPOSITE::coreo_uni_util_variables.cloudtrail-planwide.table' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-to-notifiers-array.table'}
           ])
 end
 
