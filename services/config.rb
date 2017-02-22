@@ -122,6 +122,13 @@ coreo_aws_rule_runner_cloudtrail "advise-cloudtrail" do
   regions ${AUDIT_AWS_CLOUDTRAIL_REGIONS}
 end
 
+coreo_aws_rule_runner "advise-cloudtrail-u" do
+  action :run
+  service :cloudtrail
+  rules(["cloudtrail-log-file-validating"])
+  regions ${AUDIT_AWS_CLOUDTRAIL_REGIONS}
+end
+
 coreo_uni_util_variables "cloudtrail-update-planwide-1" do
   action :set
   variables([
