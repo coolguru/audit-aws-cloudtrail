@@ -105,7 +105,7 @@ end
 # end
 
 coreo_aws_rule_runner "advise-cloudtrail" do
-  rules ["trail-with-global"]
+  rules ["cloudtrail-service-disabled","cloudtrail-no-global-trails"]
   service :cloudtrail
   id_map ["stack.current_region", "object.trail_list.name"]
   action :run
