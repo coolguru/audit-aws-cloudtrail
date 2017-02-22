@@ -52,7 +52,7 @@ coreo_aws_rule "cloudtrail-log-file-validating" do
   call_modifiers [{}, {:trail_name_list => "object.trail_list.name"}]
   audit_objects ["", "LogFileValidationEnabled"]
   operators ["", "=="]
-  raise_when ["", "false"]
+  raise_when ["", false]
   id_map "stack.current_region"
 end
 
@@ -126,7 +126,6 @@ coreo_aws_rule_runner "advise-cloudtrail-u" do
   action :run
   service :cloudtrail
   rules(["cloudtrail-log-file-validating"])
-  regions ${AUDIT_AWS_CLOUDTRAIL_REGIONS}
 end
 
 coreo_uni_util_variables "cloudtrail-update-planwide-1" do
