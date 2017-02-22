@@ -36,7 +36,7 @@ coreo_aws_rule "cloudtrail-service-disabled" do
   id_map "stack.current_region"
 end
 
-coreo_aws_rule "cloudtrail-log-file-validating"
+coreo_aws_rule "cloudtrail-log-file-validating" do
   action :define
   service :cloudtrail
   link ""
