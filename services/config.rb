@@ -71,7 +71,7 @@ coreo_aws_rule "cloudtrail-log-file-validating" do
   objectives ["trails"]
   audit_objects ["LogFileValidationEnabled"]
   operators ["=="]
-  raise_when ["false"]
+  raise_when ["true"]
   id_map "stack.current_region"
 end
 
