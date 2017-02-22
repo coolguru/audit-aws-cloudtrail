@@ -116,9 +116,8 @@ coreo_uni_util_variables "cloudtrail-planwide" do
             ])
 end
 
-coreo_aws_rule_runner "advise-cloudtrail" do
+coreo_aws_rule_runner_cloudtrail "advise-cloudtrail" do
   action :run
-  service :cloudtrail
   rules(${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}.push("cloudtrail-trail-with-global"))
   regions ${AUDIT_AWS_CLOUDTRAIL_REGIONS}
 end
