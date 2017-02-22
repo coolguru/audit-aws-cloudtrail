@@ -104,7 +104,7 @@ end
 #   id_map "object.trail_list.name"
 # end
 
-coreo_aws_rule_runner "trail-with-global" do
+coreo_aws_rule_runner "advise-cloudtrail" do
   rules ["trail-with-global"]
   service :cloudtrail
   id_map ["stack.current_region", "object.trail_list.name"]
