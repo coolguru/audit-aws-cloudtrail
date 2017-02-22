@@ -96,12 +96,19 @@ coreo_uni_util_variables "cloudtrail-planwide" do
             ])
 end
 
-coreo_aws_rule_runner "advise-cloudtrail" do
-  action :run
+# coreo_aws_rule_runner "advise-cloudtrail" do
+#   action :run
+#   service :cloudtrail
+#   rules(${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}.push("cloudtrail-trail-with-global"))
+#   regions ${AUDIT_AWS_CLOUDTRAIL_REGIONS}
+#   id_map "object.trail_list.name"
+# end
+
+coreo_aws_rule_runner "trail-with-global" do
+  rules ["trail-with-global"]
   service :cloudtrail
-  rules(${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}.push("cloudtrail-trail-with-global"))
-  regions ${AUDIT_AWS_CLOUDTRAIL_REGIONS}
-  id_map "object.trail_list.name"
+  id_map ["stack.current_region", "object.trail_list.name"]
+  action :run
 end
 
 coreo_uni_util_variables "cloudtrail-update-planwide-1" do
