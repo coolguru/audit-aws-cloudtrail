@@ -52,7 +52,7 @@ coreo_aws_rule "cloudtrail-no-global-trails" do
   audit_objects [""]
   operators [""]
   raise_when [true]
-  id_map ""
+  id_map "stack.current_region"
 end
 
 # end of user-visible content. Remaining resources are system-defined
