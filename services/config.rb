@@ -27,7 +27,9 @@ coreo_aws_rule "cloudtrail-service-disabled" do
   category "Audit"
   suggested_action "Enable CloudTrail logs for each region."
   level "Warning"
-  meta_cis_id "99.998"
+  meta_cis_id "2.1"
+  meta_cis_scored "true"
+  meta_cis_level "1"
   objectives ["trails"]
   formulas ["count"]
   audit_objects ["trail_list"]
