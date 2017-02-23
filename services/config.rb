@@ -137,7 +137,7 @@ end
 
 coreo_aws_rule_runner_cloudtrail "advise-cloudtrail" do
   action :run
-  rules(${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}.push("cloudtrail-trail-with-global"))
+  rules(${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}.push("cloudtrail-trail-with-global") - ["cloudtrail-log-file-validating"])
   regions ${AUDIT_AWS_CLOUDTRAIL_REGIONS}
 end
 
