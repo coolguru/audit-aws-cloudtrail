@@ -147,6 +147,7 @@ coreo_aws_rule_runner "advise-cloudtrail-u" do
   service :cloudtrail
   rules ["cloudtrail-log-file-validating", "cloudtrail-logs-encrypted"] #if ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}.include?("cloudtrail-log-file-validating")
   #rules [""] if !(${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}.include?("cloudtrail-log-file-validating"))
+  id_map "stack.current_region"
 end
 
 coreo_uni_util_variables "cloudtrail-update-planwide-1" do
