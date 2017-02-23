@@ -72,7 +72,7 @@ coreo_aws_rule "cloudtrail-log-file-validating" do
   audit_objects ["object.trail_list.log_file_validation_enabled"]
   operators ["=="]
   raise_when [false]
-  id_map "trail_list.name"
+  id_map "object.trail_list.name"
 end
 
 # TODO: rules that are service=user should not require objectives,audit_objects,operators,raise_when,id_map
