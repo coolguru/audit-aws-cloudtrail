@@ -57,6 +57,25 @@ coreo_aws_rule "cloudtrail-log-file-validating" do
   id_map "object.trail_list.name"
 end
 
+coreo_aws_rule "cloudtrail-logs-encrypted" do
+  action :define
+  service :cloudtrail
+  link ""
+  display_name "Cloudtrail Logs not Encrypted"
+  description "CloudTrail logs are not encrypted. They should be encrypted with KMS"
+  category "Audit"
+  suggested_action "Enable CloudTrail log encryption for this trail."
+  level "Warning"
+  meta_cis_id "2.7"
+  meta_cis_scored "true"
+  meta_cis_level "2"
+  objectives ["trails"]
+  audit_objects ["object.trail_list.kms_key_id"]
+  operators ["=="]
+  raise_when [nil]
+  id_map "object.trail_list.name"
+end
+
 # TODO: rules that are service=user should not require objectives,audit_objects,operators,raise_when,id_map
 
 coreo_aws_rule "cloudtrail-no-global-trails" do
@@ -126,8 +145,8 @@ end
 coreo_aws_rule_runner "advise-cloudtrail-u" do
   action :run
   service :cloudtrail
-  rules ["cloudtrail-log-file-validating"] if ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}.include?("cloudtrail-log-file-validating")
-  rules [""] if !(${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}.include?("cloudtrail-log-file-validating"))
+  rules ["cloudtrail-log-file-validating", "cloudtrail-logs-encrypted"] #if ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}.include?("cloudtrail-log-file-validating")
+  #rules [""] if !(${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}.include?("cloudtrail-log-file-validating"))
 end
 
 coreo_uni_util_variables "cloudtrail-update-planwide-1" do
