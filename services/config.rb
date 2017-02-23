@@ -144,11 +144,7 @@ end
 coreo_aws_rule_runner "advise-cloudtrail-u" do
   action :run
   service :cloudtrail
-  if ["cloudtrail-log-file-validating"].include?("cloudtrail-log-file-validating") do
-    rules ["cloudtrail-log-file-validating"]
-  else do 
-    rules [""]
-  end
+  rules ["cloudtrail-log-file-validating"] if ["cloudtrail-log-file-validating"].include?("cloudtrail-log-file-validating")
 end
 
 coreo_uni_util_variables "cloudtrail-update-planwide-1" do
