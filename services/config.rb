@@ -146,7 +146,7 @@ coreo_aws_rule_runner "advise-cloudtrail-u" do
   service :cloudtrail
   if ["cloudtrail-log-file-validating"].include?("cloudtrail-log-file-validating") do
     rules ["cloudtrail-log-file-validating"]
-  else 
+  else do 
     rules [""]
   end
 end
