@@ -36,26 +36,6 @@ coreo_aws_rule "cloudtrail-service-disabled" do
   id_map "stack.current_region"
 end
 
-# coreo_aws_rule "cloudtrail-log-file-validating" do
-#   action :define
-#   service :cloudtrail
-#   link ""
-#   display_name "Cloudtrail Log File Validation Disabled"
-#   description "CloudTrail log file validation is disabled for this trail. It should be enabled"
-#   category "Audit"
-#   suggested_action "Enable CloudTrail log file validation for this trail."
-#   level "Warning"
-#   meta_cis_id "2.2"
-#   meta_cis_scored "true"
-#   meta_cis_level "2"
-#   objectives ["trails", "trails"]
-#   call_modifiers [{}, {:trail_name_list => "object.trail_list.name"}]
-#   audit_objects ["", "LogFileValidationEnabled"]
-#   operators ["", "=="]
-#   raise_when ["", true]
-#   id_map "stack.current_region"
-# end
-
 coreo_aws_rule "cloudtrail-log-file-validating" do
   action :define
   service :cloudtrail
@@ -68,12 +48,32 @@ coreo_aws_rule "cloudtrail-log-file-validating" do
   meta_cis_id "2.2"
   meta_cis_scored "true"
   meta_cis_level "2"
-  objectives ["trails"]
-  audit_objects ["LogFileValidationEnabled"]
-  operators ["=="]
-  raise_when [false]
+  objectives ["trails", "trails"]
+  call_modifiers [{}, {:trail_name_list => "object.trail_list.name"}]
+  audit_objects ["", "object.trail_list.log_file_validation_enabled"]
+  operators ["", "=="]
+  raise_when ["", "false"]
   id_map "stack.current_region"
 end
+
+# coreo_aws_rule "cloudtrail-log-file-validating" do
+#   action :define
+#   service :cloudtrail
+#   link ""
+#   display_name "Cloudtrail Log File Validation Disabled"
+#   description "CloudTrail log file validation is disabled for this trail. It should be enabled"
+#   category "Audit"
+#   suggested_action "Enable CloudTrail log file validation for this trail."
+#   level "Warning"
+#   meta_cis_id "2.2"
+#   meta_cis_scored "true"
+#   meta_cis_level "2"
+#   objectives ["trails"]
+#   audit_objects ["LogFileValidationEnabled"]
+#   operators ["=="]
+#   raise_when [false]
+#   id_map "stack.current_region"
+# end
 
 # TODO: rules that are service=user should not require objectives,audit_objects,operators,raise_when,id_map
 
