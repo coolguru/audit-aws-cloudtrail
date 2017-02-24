@@ -70,9 +70,9 @@ coreo_aws_rule "cloudtrail-logs-cloudwatch" do
   meta_cis_scored "true"
   meta_cis_level "1"
   objectives ["trail_status"]
-  audit_objects ["object.latest_cloud_watch_logs_delivery_time"]
-  operators [">"]
-  raise_when ["0.minutes.ago"]
+  audit_objects [""]
+  operators ["in"]
+  raise_when ["latest_cloud_watch_logs_delivery_time"]
   id_map "object.trail_list.name"
 end
 
