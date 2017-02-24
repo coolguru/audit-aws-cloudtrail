@@ -69,10 +69,11 @@ coreo_aws_rule "cloudtrail-logs-cloudwatch" do
   meta_cis_id "2.4"
   meta_cis_scored "true"
   meta_cis_level "1"
-  objectives ["trail_status"]
-  audit_objects ["object.latest_cloud_watch_logs_delivery_time"]
-  operators ["=~"]
-  raise_when [/.*/]
+  objectives ["trails", "trail_status"]
+  call_modifiers [{}, {:name => "object.trail_list.name"}]
+  audit_objects ["", "object.latest_cloud_watch_logs_delivery_time"]
+  operators ["", "=~"]
+  raise_when ["", //]
   id_map "object.trail_list.name"
 end
 
@@ -145,8 +146,8 @@ end
 coreo_aws_rule_runner "advise-cloudtrail-u" do
   action :run
   service :cloudtrail
-  rules ["cloudtrail-log-file-validating"] if ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}.include?("cloudtrail-log-file-validating")
-  rules [""] if !(${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}.include?("cloudtrail-log-file-validating"))
+  rules ["cloudtrail-log-file-validating", "cloudtrail-logs-cloudwatch"] #if ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}.include?("cloudtrail-log-file-validating")
+  # rules [""] if !(${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}.include?("cloudtrail-log-file-validating"))
 end
 
 coreo_uni_util_variables "cloudtrail-update-planwide-1" do
