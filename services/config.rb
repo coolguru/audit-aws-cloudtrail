@@ -71,7 +71,7 @@ coreo_aws_rule "cloudtrail-logs-encrypted" do
   meta_cis_level "2"
   objectives ["trails"]
   audit_objects ["object.trail_list"]
-  operators ["=~"]
+  operators ["!~"]
   raise_when [/kms_key_id/]
   id_map "object.trail_list.name"
 end
