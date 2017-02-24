@@ -70,9 +70,9 @@ coreo_aws_rule "cloudtrail-logs-encrypted" do
   meta_cis_scored "true"
   meta_cis_level "2"
   objectives ["trails"]
-  audit_objects ["object.trail_list"]
-  operators ["!~"]
-  raise_when [/kms_key_id/]
+  audit_objects ["object.trail_list.kms_key_id"]
+  operators ["=="]
+  raise_when [nil]
   id_map "object.trail_list.name"
 end
 
@@ -145,8 +145,8 @@ end
 coreo_aws_rule_runner "advise-cloudtrail-u" do
   action :run
   service :cloudtrail
-  rules ["cloudtrail-log-file-validating", "cloudtrail-logs-encrypted"] #if ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}.include?("cloudtrail-log-file-validating")
-  #rules [""] if !(${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}.include?("cloudtrail-log-file-validating"))
+  rules ["cloudtrail-log-file-validating"] if ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}.include?("cloudtrail-log-file-validating")
+  rules [""] if !(${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}.include?("cloudtrail-log-file-validating"))
 end
 
 coreo_uni_util_variables "cloudtrail-update-planwide-1" do
