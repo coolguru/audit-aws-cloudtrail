@@ -62,7 +62,7 @@ coreo_aws_rule "cloudtrail-logs-cloudwatch" do
   service :cloudtrail
   link ""
   display_name "Cloudtrail Logs Integrated with CloudWatch"
-  description "CloudTrail logs have not attempted delivery to CloudWatch in the last two days. Ensure CloudWatch is integrated"
+  description "CloudTrail logs have not attempted delivery to CloudWatch in the last 24 hours. Ensure CloudWatch is integrated"
   category "Audit"
   suggested_action "Integrate CloudWatch with Cloudtrail"
   level "Warning"
@@ -73,8 +73,8 @@ coreo_aws_rule "cloudtrail-logs-cloudwatch" do
   call_modifiers [{}, {:name => "object.trail_list.name"}]
   audit_objects ["", "object.latest_cloud_watch_logs_delivery_time"]
   operators ["", "<"]
-  raise_when ["", "300.minutes.ago"]
-  id_map "object.trail_list.name"
+  raise_when ["", "1.day.ago"]
+  id_map "modifiers.name"
 end
 
 # TODO: rules that are service=user should not require objectives,audit_objects,operators,raise_when,id_map
