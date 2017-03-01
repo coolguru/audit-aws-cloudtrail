@@ -57,6 +57,26 @@ coreo_aws_rule "cloudtrail-log-file-validating" do
   id_map "object.trail_list.name"
 end
 
+coreo_aws_rule "cloudtrail-logs-cloudwatch" do
+  action :define
+  service :cloudtrail
+  link ""
+  display_name "Cloudtrail Logs Integrated with CloudWatch"
+  description "CloudTrail logs have not attempted delivery to CloudWatch in the last 24 hours. Ensure CloudWatch is integrated"
+  category "Audit"
+  suggested_action "Integrate CloudWatch with Cloudtrail"
+  level "Warning"
+  meta_cis_id "2.4"
+  meta_cis_scored "true"
+  meta_cis_level "1"
+  objectives ["trails", "trail_status"]
+  call_modifiers [{}, {:name => "object.trail_list.name"}]
+  audit_objects ["", "object.latest_cloud_watch_logs_delivery_time"]
+  operators ["", "<"]
+  raise_when ["", "1.day.ago"]
+  id_map "modifiers.name"
+end
+
 # TODO: rules that are service=user should not require objectives,audit_objects,operators,raise_when,id_map
 
 coreo_aws_rule "cloudtrail-no-global-trails" do
