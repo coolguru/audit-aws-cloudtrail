@@ -143,7 +143,7 @@ coreo_aws_rule_runner_cloudtrail "advise-cloudtrail" do
   regions ${AUDIT_AWS_CLOUDTRAIL_REGIONS}
 end
 
-coreo_aws_rule_runner "advise-cloudtrail-u" do
+coreo_aws_rule_runner_cloudtrail "advise-cloudtrail-u" do
   action :run
   service :cloudtrail
   rules ["cloudtrail-log-file-validating"] if ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}.include?("cloudtrail-log-file-validating")
