@@ -27,13 +27,54 @@ coreo_aws_rule "cloudtrail-service-disabled" do
   category "Audit"
   suggested_action "Enable CloudTrail logs for each region."
   level "Warning"
-  meta_cis_id "99.998"
+  meta_cis_id "2.1"
+  meta_cis_scored "true"
+  meta_cis_level "1"
   objectives ["trails"]
   formulas ["count"]
   audit_objects ["trail_list"]
   operators ["=="]
   raise_when [0]
   id_map "stack.current_region"
+end
+
+coreo_aws_rule "cloudtrail-log-file-validating" do
+  action :define
+  service :cloudtrail
+  link ""
+  display_name "Cloudtrail Log File Validation Disabled"
+  description "CloudTrail log file validation is disabled for this trail. It should be enabled"
+  category "Audit"
+  suggested_action "Enable CloudTrail log file validation for this trail."
+  level "Warning"
+  meta_cis_id "2.2"
+  meta_cis_scored "true"
+  meta_cis_level "2"
+  objectives ["trails"]
+  audit_objects ["object.trail_list.log_file_validation_enabled"]
+  operators ["=="]
+  raise_when [false]
+  id_map "object.trail_list.name"
+end
+
+coreo_aws_rule "cloudtrail-logs-cloudwatch" do
+  action :define
+  service :cloudtrail
+  link ""
+  display_name "Cloudtrail Logs Integrated with CloudWatch"
+  description "CloudTrail logs have not attempted delivery to CloudWatch in the last 24 hours. Ensure CloudWatch is integrated"
+  category "Audit"
+  suggested_action "Integrate CloudWatch with Cloudtrail"
+  level "Warning"
+  meta_cis_id "2.4"
+  meta_cis_scored "true"
+  meta_cis_level "1"
+  objectives ["trails", "trail_status"]
+  call_modifiers [{}, {:name => "object.trail_list.name"}]
+  audit_objects ["", "object.latest_cloud_watch_logs_delivery_time"]
+  operators ["", "<"]
+  raise_when ["", "1.day.ago"]
+  id_map "modifiers.name"
 end
 
 # TODO: rules that are service=user should not require objectives,audit_objects,operators,raise_when,id_map
@@ -98,8 +139,15 @@ end
 
 coreo_aws_rule_runner_cloudtrail "advise-cloudtrail" do
   action :run
-  rules(${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}.push("cloudtrail-trail-with-global"))
+  rules(${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}.push("cloudtrail-trail-with-global") - ["cloudtrail-log-file-validating"])
   regions ${AUDIT_AWS_CLOUDTRAIL_REGIONS}
+end
+
+coreo_aws_rule_runner "advise-cloudtrail-u" do
+  action :run
+  service :cloudtrail
+  rules ["cloudtrail-log-file-validating"] if ${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}.include?("cloudtrail-log-file-validating")
+  rules [""] if !(${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}.include?("cloudtrail-log-file-validating"))
 end
 
 coreo_uni_util_variables "cloudtrail-update-planwide-1" do
