@@ -1,12 +1,14 @@
 variables:
     AUDIT_AWS_CLOUDTRAIL_ALERT_LIST:
-        description: "Which alerts would you like to check for? Default is all Cloudtrail alerts. Possible values are cloudtrail-service-disabled,cloudtrail-no-global-trails,cloudtrail-inventory, cloudtrail-log-file-validating"
+        description: "Which alerts would you like to check for? Default is all Cloudtrail alerts. Possible values are cloudtrail-inventory,cloudtrail-service-disabled,cloudtrail-log-file-validating,cloudtrail-logs-cloudwatch,cloudtrail-no-global-trails"
         required: false
         type: array
         default:
+            - cloudtrail-inventory
             - cloudtrail-service-disabled
-            - cloudtrail-no-global-trails
+            - cloudtrail-log-file-validating
             - cloudtrail-logs-cloudwatch
+            - cloudtrail-no-global-trails
     AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT:
         description: "Enter the email address(es) that will receive notifications. If more than one, separate each with a comma."
         required: false
