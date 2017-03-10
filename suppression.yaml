@@ -1,12 +1,13 @@
 cloudtrail-service-disabled:
-  - put-your-object-id-here-1: ""
-  - put-your-object-id-here-2: "2017-01-10T00:00Z"
+  - eu-west-1: ""
+  - eu-west-2: "2017-01-10T00:00Z"
+  - sa-east-1: "2017-07-10T00:00Z"
 cloudtrail-inventory:
   - put-your-object-id-here-1: ""
-  - put-your-object-id-here-2: "2017-01-10T00:00Z"
+  - mattes-cis3_2-trail1: "2017-01-10T00:00Z"
 no-global-trails:
   - put-your-object-id-here-1: ""
-  - put-your-object-id-here-2: "2017-01-10T00:00Z"
+  - put-your-object-id-here-2: "2017-07-10T00:00Z"
 
 
 # Suppression times (optional) use ISO date formats according to this template:
