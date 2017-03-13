@@ -81,7 +81,7 @@ end
 
 coreo_aws_rule "cloudtrail-no-global-trails" do
   action :define
-  service :user
+  service :usFer
   category "Audit"
   link "http://kb.cloudcoreo.com/mydoc_cloudtrail-trail-with-global.html"
   display_name "Cloudtrail Global Logging is Disabled"
@@ -293,7 +293,7 @@ coreo_uni_util_jsrunner "cloudtrail-tags-to-notifiers-array" do
   packages([
                {
                    :name => "cloudcoreo-jsrunner-commons",
-                   :version => "latest"
+                   :version => "1.9.3"
                },
                {
                    :name => "js-yaml",
