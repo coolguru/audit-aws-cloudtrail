@@ -81,7 +81,7 @@ end
 
 coreo_aws_rule "cloudtrail-no-global-trails" do
   action :define
-  service :usFer
+  service :user
   category "Audit"
   link "http://kb.cloudcoreo.com/mydoc_cloudtrail-trail-with-global.html"
   display_name "Cloudtrail Global Logging is Disabled"
