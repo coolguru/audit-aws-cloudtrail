@@ -48,3 +48,8 @@ variables:
         required: true
         type: boolean
         default: false
+    JSRUNNER_COMMONS_VERSION:
+        description: "what version of the JSRunner-commons npm module would you like to use?"
+        required: true
+        type: string
+        default: "1.9.2"
