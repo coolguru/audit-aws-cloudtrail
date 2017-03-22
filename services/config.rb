@@ -96,12 +96,12 @@ coreo_aws_rule "cloudtrail-no-global-trails" do
   id_map ""
 end
 
-coreo_aws_rule "cloudtrail-logs-encrypted-rule" do
+coreo_aws_rule "cloudtrail-logs-encrypted" do
   action :define
   service :user
   category "Audit"
-  link "http://kb.cloudcoreo.com/"
-  display_name "Ensure CloudTrail logs are encrypted at rest using KMS CMKs (Scored)"
+  link "https://benchmarks.cisecurity.org/tools2/amazon/CIS_Amazon_Web_Services_Foundations_Benchmark_v1.1.0.pdf#page=84"
+  display_name "CloudTrail logs are encrypted at rest using KMS CMKs"
   suggested_action "It is recommended that CloudTrail be configured to use SSE-KMS."
   description "AWS CloudTrail is a web service that records AWS API calls for an account and makes those logs available to users and resources in accordance with IAM policies. AWS Key Management Service (KMS) is a managed service that helps create and control the encryption keys used to encrypt account data, and uses Hardware Security Modules (HSMs) to protect the security of encryption keys. CloudTrail logs can be configured to leverage server side encryption (SSE) and KMS customer created master keys (CMK) to further protect CloudTrail logs."
   level "Warning"
@@ -328,11 +328,11 @@ coreo_uni_util_variables "cloudtrail-update-advisor-output" do
 end
 
 coreo_uni_util_jsrunner "cis27-processor" do
-  action (("${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}".include?("cloudtrail-logs-encrypted-rule")) ? :run : :nothing)
-  json_input (("${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}".include?("cloudtrail-logs-encrypted-rule")) ? '[COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.report, COMPOSITE::coreo_aws_rule_runner.cloudtrail-inventory-runner.report]' : '[]')
+  action (("${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}".include?("cloudtrail-logs-encrypted")) ? :run : :nothing)
+  json_input (("${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}".include?("cloudtrail-logs-encrypted")) ? '[COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.report, COMPOSITE::coreo_aws_rule_runner.cloudtrail-inventory-runner.report]' : '[]')
   function <<-'EOH'
   const ruleMetaJSON = {
-      'cloudtrail-logs-encrypted-rule': COMPOSITE::coreo_aws_rule.cloudtrail-logs-encrypted-rule.inputs
+      'cloudtrail-logs-encrypted': COMPOSITE::coreo_aws_rule.cloudtrail-logs-encrypted.inputs
   };
   const ruleInputsToKeep = ['service', 'category', 'link', 'display_name', 'suggested_action', 'description', 'level', 'meta_cis_id', 'meta_cis_scored', 'meta_cis_level', 'include_violations_in_count'];
   const ruleMeta = {};
@@ -346,7 +346,7 @@ coreo_uni_util_jsrunner "cis27-processor" do
       ruleMeta[rule] = flattenedRule;
   })
 
-  const USER_RULE = 'cloudtrail-logs-encrypted-rule'
+  const USER_RULE = 'cloudtrail-logs-encrypted'
   const INVENTORY_RULE = 'cloudtrail-inventory';
 
   const regionArrayJSON = "${AUDIT_AWS_CLOUDTRAIL_REGIONS}";
@@ -410,7 +410,7 @@ EOH
 end
 
 coreo_uni_util_variables "cloudtrail-update-planwide-3" do
-  action   action (("${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}".include?("cloudtrail-logs-encrypted-rule")) ? :set : :nothing)
+  action   action (("${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}".include?("cloudtrail-logs-encrypted")) ? :set : :nothing)
   variables([
                 {'COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.cis27-processor.return'}
             ])

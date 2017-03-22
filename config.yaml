@@ -9,6 +9,7 @@ variables:
             - cloudtrail-log-file-validating
             - cloudtrail-logs-cloudwatch
             - cloudtrail-no-global-trails
+            - cloudtrail-logs-encrypted
     AUDIT_AWS_CLOUDTRAIL_ALERT_RECIPIENT:
         description: "Enter the email address(es) that will receive notifications. If more than one, separate each with a comma."
         required: false
