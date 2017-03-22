@@ -329,7 +329,7 @@ end
 
 coreo_uni_util_jsrunner "cis27-processor" do
   action (("${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}".include?("cloudtrail-logs-encrypted-rule")) ? :run : :nothing)
-  json_input (("${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}".include?("cloudtrail-logs-encrypted-rule")) ? '[COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.report, coreo_aws_rule_runner.cloudtrail-inventory-runner.report]' : '[]')
+  json_input (("${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}".include?("cloudtrail-logs-encrypted-rule")) ? '[COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.report, COMPOSITE::coreo_aws_rule_runner.cloudtrail-inventory-runner.report]' : '[]')
   function <<-'EOH'
   const ruleMetaJSON = {
       'user-rule': COMPOSITE::coreo_aws_rule.cloudtrail-logs-encrypted-rule.inputs
