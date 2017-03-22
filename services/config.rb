@@ -489,7 +489,7 @@ callback(letters);
   EOH
 end
 
-coreo_uni_util_variables "cloudtrail-update-planwide-3" do
+coreo_uni_util_variables "cloudtrail-update-planwide-4" do
   action :set
   variables([
                 {'COMPOSITE::coreo_uni_util_variables.cloudtrail-planwide.results' => 'COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-tags-to-notifiers-array.JSONReport'},
