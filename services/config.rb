@@ -432,7 +432,7 @@ coreo_uni_util_jsrunner "cloudtrail-tags-to-notifiers-array" do
   json_input '{ "composite name":"PLAN::stack_name",
                 "plan name":"PLAN::name",
                 "cloud account name":"PLAN::cloud_account_name",
-                "violations": COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return}'
+                "violations": COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.report}'
   function <<-EOH
 
 
