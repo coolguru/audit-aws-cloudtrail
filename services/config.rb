@@ -363,8 +363,8 @@ coreo_uni_util_jsrunner "cis27-processor" do
       const trails = Object.keys(inventory[region]);
 
       trails.forEach(trail => {
-          if (!cloudTrailInventory[region][trail]['violations'][INVENTORY_RULE] || !verifyTrailContainsKMSkey(cloudTrailInventory[region][trail]['violations'][INVENTORY_RULE]['result_info'])){
-                updateOutputWithResults(region, trail, cloudTrailInventory[region][trail]['violations'][INVENTORY_RULE], USER_RULE);
+          if (!inventory[region][trail]['violations'][INVENTORY_RULE] || !verifyTrailContainsKMSkey(inventory[region][trail]['violations'][INVENTORY_RULE]['result_info'])){
+                updateOutputWithResults(region, trail, inventory[region][trail]['violations'][INVENTORY_RULE], USER_RULE);
           }
       })
   })
