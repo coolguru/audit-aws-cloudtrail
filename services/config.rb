@@ -96,6 +96,25 @@ coreo_aws_rule "cloudtrail-no-global-trails" do
   id_map ""
 end
 
+coreo_aws_rule "cloudtrail-logs-encrypted-rule" do
+  action :define
+  service :user
+  category "Audit"
+  link "http://kb.cloudcoreo.com/"
+  display_name "Ensure CloudTrail logs are encrypted at rest using KMS CMKs (Scored)"
+  suggested_action "It is recommended that CloudTrail be configured to use SSE-KMS."
+  description "AWS CloudTrail is a web service that records AWS API calls for an account and makes those logs available to users and resources in accordance with IAM policies. AWS Key Management Service (KMS) is a managed service that helps create and control the encryption keys used to encrypt account data, and uses Hardware Security Modules (HSMs) to protect the security of encryption keys. CloudTrail logs can be configured to leverage server side encryption (SSE) and KMS customer created master keys (CMK) to further protect CloudTrail logs."
+  level "Warning"
+  meta_cis_id "2.7"
+  meta_cis_scored "true"
+  meta_cis_level "2"
+  objectives [""]
+  audit_objects [""]
+  operators [""]
+  raise_when [true]
+  id_map "static.no_op"
+end
+
 # end of user-visible content. Remaining resources are system-defined
 
 coreo_aws_rule "cloudtrail-trail-with-global" do
@@ -113,6 +132,28 @@ coreo_aws_rule "cloudtrail-trail-with-global" do
   operators ["=="]
   raise_when [true]
   id_map "stack.current_region"
+end
+
+coreo_aws_rule "cloudtrail-inventory" do
+  action :define
+  service :cloudtrail
+  link "http://kb.cloudcoreo.com/"
+  include_violations_in_count false
+  display_name "Inventory CloudTrail"
+  description "Inventory CloudTrail"
+  category "Inventory"
+  level "Internal"
+  objectives    ["trails"]
+  audit_objects ["object.trail_list.name"]
+  operators     ["=~"]
+  raise_when    [//]
+  id_map        "object.trail_list.name"
+end
+
+coreo_aws_rule_runner "cloudtrail-inventory-runner" do
+  action :run
+  service :cloudtrail
+  rules ["cloudtrail-inventory"]
 end
 
 # cross-resource variable holder
@@ -286,6 +327,95 @@ coreo_uni_util_variables "cloudtrail-update-advisor-output" do
             ])
 end
 
+coreo_uni_util_jsrunner "cis27-processor" do
+  action (("${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}".include?("cloudtrail-logs-encrypted-rule")) ? :run : :nothing)
+  json_input (("${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}".include?("cloudtrail-logs-encrypted-rule")) ? '[COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.report, coreo_aws_rule_runner.cloudtrail-inventory-runner.report]' : '[]')
+  function <<-'EOH'
+  const ruleMetaJSON = {
+      'user-rule': COMPOSITE::coreo_aws_rule.cloudtrail-logs-encrypted-rule.inputs
+  };
+  const ruleInputsToKeep = ['service', 'category', 'link', 'display_name', 'suggested_action', 'description', 'level', 'meta_cis_id', 'meta_cis_scored', 'meta_cis_level', 'include_violations_in_count'];
+  const ruleMeta = {};
+
+  Object.keys(ruleMetaJSON).forEach(rule => {
+      const flattenedRule = {};
+      ruleMetaJSON[rule].forEach(input => {
+          if (ruleInputsToKeep.includes(input.name))
+              flattenedRule[input.name] = input.value;
+      })
+      ruleMeta[rule] = flattenedRule;
+  })
+
+  const USER_RULE = 'user-rule'
+  const INVENTORY_RULE = 'cloudtrail-inventory';
+
+  const regionArrayJSON = "${AUDIT_AWS_CLOUDTRAIL_REGIONS}";
+  const regionArray = JSON.parse(regionArrayJSON.replace(/'/g, '"'))
+
+  const inventory = json_input[1];
+  var json_output = json_input[0]
+
+  const violations = copyViolationInNewJsonInput(regionArray, json_output);
+
+  regionArray.forEach(region => {
+      if (!inventory[region]) return;
+
+      const trails = Object.keys(inventory[region]);
+
+      trails.forEach(trail => {
+          if (!cloudTrailInventory[region][trail]['violations'][INVENTORY_RULE] || !verifyTrailContainsKMSkey(cloudTrailInventory[region][trail]['violations'][INVENTORY_RULE]['result_info'])){
+                updateOutputWithResults(region, trail, cloudTrailInventory[region][trail]['violations'][INVENTORY_RULE], USER_RULE);
+          }
+      })
+  })
+
+  function copyViolationInNewJsonInput(regions, input) {
+      const output = {};
+      regions.forEach(regionKey => {
+          if (!input[regionKey]) {
+            output[regionKey] = {};
+          } else {
+            output[regionKey] = input[regionKey]
+          }
+      });
+      return output;
+  }
+
+  function updateOutputWithResults(region, objectID, objectDetails, rule) {
+      if (!violations[region][objectID]) {
+          violations[region][objectID] = {};
+          violations[region][objectID]['violator_info'] = objectDetails;
+      }
+      if (!violations[region][objectID]['violations']) {
+          violations[region][objectID]['violations'] = {};
+      }
+
+      violations[region][objectID]['violations'][rule] = Object.assign(ruleMeta[rule]);
+  }
+
+  function verifyTrailContainsKMSkey(results) {
+      let kmsKeyExist = false
+      results.forEach(result => {
+          if ("kms_key_id" in result['object']){
+            console.log(result['object'])
+            kmsKeyExist = true
+          }
+      })
+
+      return kmsKeyExist;
+  }
+
+  callback(violations);
+EOH
+end
+
+coreo_uni_util_variables "cloudtrail-update-planwide-3" do
+  action   action (("${AUDIT_AWS_CLOUDTRAIL_ALERT_LIST}".include?("cloudtrail-logs-encrypted-rule")) ? :set : :nothing)
+  variables([
+                {'COMPOSITE::coreo_aws_rule_runner_cloudtrail.advise-cloudtrail.report' => 'COMPOSITE::coreo_uni_util_jsrunner.cis27-processor.return'}
+            ])
+end
+
 coreo_uni_util_jsrunner "cloudtrail-tags-to-notifiers-array" do
   action :run
   data_type "json"
@@ -305,7 +435,7 @@ coreo_uni_util_jsrunner "cloudtrail-tags-to-notifiers-array" do
                 "violations": COMPOSITE::coreo_uni_util_jsrunner.cloudtrail-aggregate.return}'
   function <<-EOH
 
-  
+
 
 function setTableAndSuppression() {
   let table;
@@ -317,13 +447,13 @@ function setTableAndSuppression() {
       suppression = yaml.safeLoad(fs.readFileSync('./suppression.yaml', 'utf8'));
   } catch (e) {
       console.log("Error reading suppression.yaml file");
-      suppression = {};  
+      suppression = {};
   }
   try {
       table = yaml.safeLoad(fs.readFileSync('./table.yaml', 'utf8'));
   } catch (e) {
       console.log("Error reading table.yaml file");
-      table = {};  
+      table = {};
   }
   coreoExport('table', JSON.stringify(table));
   coreoExport('suppression', JSON.stringify(suppression));
